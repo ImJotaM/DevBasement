@@ -1,8 +1,330 @@
-{% extends 'core/base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevBasement - Projetos para Devs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f0f2f5;
+        }
+        .sidebar-card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .project-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+        .project-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .btn-primary-custom {
+            background-color: #1da1f2;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-weight: bold;
+            color: white;
+        }
+        .btn-primary-custom:hover {
+            background-color: #0d8bd9;
+            color: white;
+        }
+        .trending-tag {
+            color: #1da1f2;
+            font-weight: bold;
+        }
+        .trending-topic {
+            font-size: 13px;
+            color: #536471;
+        }
+        .login-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+        .login-btn {
+            background-color: white;
+            color: #667eea;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 30px;
+            font-weight: bold;
+            margin: 10px;
+            transition: transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .login-btn:hover {
+            transform: scale(1.05);
+            color: #667eea;
+        }
+        .interaction-btn {
+            color: #536471;
+            cursor: pointer;
+            transition: color 0.2s;
+            font-size: 0.95rem;
+        }
+        .like-btn:hover { color: #e0245e; }
+        .comment-btn:hover { color: #1da1f2; }
+        .question-btn:hover { color: #17bf63; }
+        .support-btn {
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .item-badge {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            color: #495057;
+            font-weight: 500;
+        }
+        /* Classe para o avatar dinâmico com a inicial do usuário */
+        .text-avatar {
+            width: 80px; 
+            height: 80px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
 
-{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            
+            {% if user.is_authenticated %}
+                <div class="sidebar-card text-center pb-4 pt-4">
+                    <div class="mb-3">
+                        <div class="text-avatar shadow-sm">
+                            {{ user.username|make_list|first|upper }}
+                        </div>
+                    </div>
+                    <h5 class="mb-0 fw-bold">{{ user.first_name }} {{ user.last_name }}</h5>
+                    <p class="text-muted small mb-3">@{{ user.username }}</p>
+                    
+                    <div class="d-flex justify-content-center gap-3 mb-4">
+                        <div class="text-center px-2">
+                            <strong class="d-block text-dark">0</strong>
+                            <span class="text-muted small">Projetos</span>
+                        </div>
+                        <div class="text-center px-2 border-start">
+                            <strong class="d-block text-dark">0</strong>
+                            <span class="text-muted small">Apoios</span>
+                        </div>
+                    </div>
 
-<h1>DevBasement</h1>
-<p>Gerenciador de projetos para desenvolvedores</p>
+                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill w-75 mb-2 fw-bold">Meu Perfil</a>
+                    
+                    <form method="POST" action="{% url 'logout' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-light btn-sm rounded-pill w-75 text-danger fw-bold border">
+                            <i class="fas fa-sign-out-alt me-1"></i> Sair
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="sidebar-card login-card">
+                    <i class="fas fa-boxes fa-3x mb-3"></i>
+                    <h4>DevBasement</h4>
+                    <p>Organize, centralize e compartilhe seus projetos com a comunidade!</p>
+                    
+                    <a href="{% url 'login' %}" class="login-btn">
+                        <i class="fas fa-sign-in-alt"></i> Entrar
+                    </a>
+                    <a href="{% url 'signup' %}" class="login-btn">
+                        <i class="fas fa-user-plus"></i> Cadastrar
+                    </a>
+                </div>
+            {% endif %}
 
-{% endblock %}
+            <div class="sidebar-card">
+                <h6>Tecnologias em Alta</h6>
+                <div class="mb-2">
+                    <div class="trending-topic small">Front-end</div>
+                    <div class="trending-tag">#ReactJS</div>
+                    <small class="text-muted">2.345 projetos</small>
+                </div>
+                <div class="mb-2">
+                    <div class="trending-topic small">Back-end</div>
+                    <div class="trending-tag">#Django</div>
+                    <small class="text-muted">1.892 projetos</small>
+                </div>
+                <div>
+                    <div class="trending-topic small">DevOps</div>
+                    <div class="trending-tag">#Docker</div>
+                    <small class="text-muted">987 projetos</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            
+            <div class="project-card text-center py-4">
+                <h5 class="mb-1">Tem um projeto novo?</h5>
+                <p class="text-muted small mb-3">Organize repositórios, documentação e snippets em um só lugar.</p>
+                
+                {% if user.is_authenticated %}
+                    <button class="btn btn-primary-custom">
+                        <i class="fas fa-plus-circle me-1"></i> Criar Novo Projeto
+                    </button>
+                {% else %}
+                    <button class="btn btn-primary-custom" disabled>
+                        <i class="fas fa-plus-circle me-1"></i> Criar Novo Projeto
+                    </button>
+                    <div class="mt-2"><small class="text-muted">Faça login para criar projetos</small></div>
+                {% endif %}
+            </div>
+
+            <div class="project-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex gap-2 align-items-center">
+                        <img src="https://via.placeholder.com/48" class="avatar">
+                        <div>
+                            <strong>Ana Costa</strong>
+                            <span class="text-muted small d-block">@anacosta · Publicado há 2h</span>
+                        </div>
+                    </div>
+                    <span class="badge bg-success rounded-pill">Concluído</span>
+                </div>
+                
+                <div class="mb-3">
+                    <h4 class="mb-2">TaskMaster API Restful</h4>
+                    <p class="text-dark">API completa para gerenciamento de tarefas com autenticação JWT. Construída para servir de base para qualquer front-end.</p>
+                    
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <span class="badge item-badge"><i class="fab fa-github"></i> Repositório</span>
+                        <span class="badge item-badge"><i class="fas fa-file-code"></i> 4 Snippets</span>
+                        <span class="badge item-badge"><i class="fas fa-book"></i> Docs (Markdown)</span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                    <div class="d-flex gap-4">
+                        <div class="interaction-btn like-btn">
+                            <i class="far fa-heart"></i> <span>42</span>
+                        </div>
+                        <div class="interaction-btn comment-btn">
+                            <i class="far fa-comment"></i> <span>12</span>
+                        </div>
+                        <div class="interaction-btn question-btn">
+                            <i class="far fa-question-circle"></i> <span>3</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-warning support-btn text-dark">
+                        <i class="fas fa-hand-holding-heart"></i> Apoiar
+                    </button>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex gap-2 align-items-center">
+                        <img src="https://via.placeholder.com/48" class="avatar">
+                        <div>
+                            <strong>Carlos Mendes</strong>
+                            <span class="text-muted small d-block">@carlosmendes · Publicado há 5h</span>
+                        </div>
+                    </div>
+                    <span class="badge bg-primary rounded-pill">Em Desenvolvimento</span>
+                </div>
+                
+                <div class="mb-3">
+                    <h4 class="mb-2">WeatherApp Mobile</h4>
+                    <p class="text-dark">App de previsão do tempo feito com React Native consumindo a OpenWeather API. Design focado em UX e animações fluidas.</p>
+                    
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <span class="badge item-badge"><i class="fab fa-github"></i> Front-end Repo</span>
+                        <span class="badge item-badge"><i class="fas fa-link"></i> Figma Design</span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                    <div class="d-flex gap-4">
+                        <div class="interaction-btn like-btn">
+                            <i class="far fa-heart"></i> <span>28</span>
+                        </div>
+                        <div class="interaction-btn comment-btn">
+                            <i class="far fa-comment"></i> <span>8</span>
+                        </div>
+                        <div class="interaction-btn question-btn">
+                            <i class="far fa-question-circle"></i> <span>1</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-warning support-btn text-dark">
+                        <i class="fas fa-hand-holding-heart"></i> Apoiar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="sidebar-card">
+                <h6>Devs em Destaque</h6>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex gap-2 align-items-center">
+                        <img src="https://via.placeholder.com/40" class="rounded-circle" width="40" height="40">
+                        <div class="lh-sm">
+                            <div><strong>Rafael Lima</strong></div>
+                            <div class="small text-muted">12 Projetos</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3">Seguir</button>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex gap-2 align-items-center">
+                        <img src="https://via.placeholder.com/40" class="rounded-circle" width="40" height="40">
+                        <div class="lh-sm">
+                            <div><strong>Beatriz Santos</strong></div>
+                            <div class="small text-muted">8 Projetos</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3">Seguir</button>
+                </div>
+            </div>
+
+            <div class="sidebar-card">
+                <h6>Links Úteis</h6>
+                <div class="mb-2 small">
+                    <a href="#" class="text-decoration-none text-muted">Sobre o DevBasement</a>
+                </div>
+                <div class="mb-2 small">
+                    <a href="#" class="text-decoration-none text-muted">Termos de Uso</a>
+                </div>
+                <div class="small">
+                    <a href="#" class="text-decoration-none text-muted">Diretrizes da Comunidade</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
