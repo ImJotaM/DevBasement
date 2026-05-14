@@ -29,12 +29,6 @@
         .project-card:hover {
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-        .avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
         .btn-primary-custom {
             background-color: #1da1f2;
             border: none;
@@ -97,7 +91,6 @@
             color: #495057;
             font-weight: 500;
         }
-        /* Classe para o avatar dinâmico com a inicial do usuário */
         .text-avatar {
             width: 80px; 
             height: 80px; 
@@ -110,6 +103,30 @@
             justify-content: center;
             border-radius: 50%;
             margin: 0 auto;
+        }
+        .text-avatar-small {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        .text-avatar-tiny {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-size: 1rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
         }
     </style>
 </head>
@@ -131,7 +148,7 @@
                     
                     <div class="d-flex justify-content-center gap-3 mb-4">
                         <div class="text-center px-2">
-                            <strong class="d-block text-dark">0</strong>
+                            <strong class="d-block text-dark">{{ user.projects.count }}</strong>
                             <span class="text-muted small">Projetos</span>
                         </div>
                         <div class="text-center px-2 border-start">
@@ -140,7 +157,7 @@
                         </div>
                     </div>
 
-                    <a href="#" class="btn btn-outline-primary btn-sm rounded-pill w-75 mb-2 fw-bold">Meu Perfil</a>
+                    <a href="{% url 'profile' %}" class="btn btn-outline-primary btn-sm rounded-pill w-75 mb-2 fw-bold">Meu Perfil</a>
                     
                     <form method="POST" action="{% url 'logout' %}" class="d-inline">
                         {% csrf_token %}
@@ -191,9 +208,9 @@
                 <p class="text-muted small mb-3">Organize repositórios, documentação e snippets em um só lugar.</p>
                 
                 {% if user.is_authenticated %}
-                    <button class="btn btn-primary-custom">
+                    <a href="{% url 'create_project' %}" class="btn btn-primary-custom">
                         <i class="fas fa-plus-circle me-1"></i> Criar Novo Projeto
-                    </button>
+                    </a>
                 {% else %}
                     <button class="btn btn-primary-custom" disabled>
                         <i class="fas fa-plus-circle me-1"></i> Criar Novo Projeto
@@ -205,7 +222,7 @@
             <div class="project-card">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div class="d-flex gap-2 align-items-center">
-                        <img src="https://via.placeholder.com/48" class="avatar">
+                        <div class="text-avatar-small">A</div>
                         <div>
                             <strong>Ana Costa</strong>
                             <span class="text-muted small d-block">@anacosta · Publicado há 2h</span>
@@ -246,7 +263,7 @@
             <div class="project-card">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div class="d-flex gap-2 align-items-center">
-                        <img src="https://via.placeholder.com/48" class="avatar">
+                        <div class="text-avatar-small">C</div>
                         <div>
                             <strong>Carlos Mendes</strong>
                             <span class="text-muted small d-block">@carlosmendes · Publicado há 5h</span>
@@ -289,7 +306,7 @@
                 <h6>Devs em Destaque</h6>
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex gap-2 align-items-center">
-                        <img src="https://via.placeholder.com/40" class="rounded-circle" width="40" height="40">
+                        <div class="text-avatar-tiny">R</div>
                         <div class="lh-sm">
                             <div><strong>Rafael Lima</strong></div>
                             <div class="small text-muted">12 Projetos</div>
@@ -299,7 +316,7 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex gap-2 align-items-center">
-                        <img src="https://via.placeholder.com/40" class="rounded-circle" width="40" height="40">
+                        <div class="text-avatar-tiny">B</div>
                         <div class="lh-sm">
                             <div><strong>Beatriz Santos</strong></div>
                             <div class="small text-muted">8 Projetos</div>
