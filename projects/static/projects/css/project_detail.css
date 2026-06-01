@@ -10,7 +10,7 @@ body {
     color: white;
 }
 
-.project-card {
+.project-card, .sidebar-card {
     background: white;
     border-radius: 15px;
     padding: 30px;
@@ -19,11 +19,7 @@ body {
 }
 
 .sidebar-card {
-    background: white;
-    border-radius: 15px;
     padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .section-card {
@@ -32,13 +28,14 @@ body {
     padding: 25px;
     margin-bottom: 20px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     position: relative;
 }
 
 .section-card.pinned {
     border-left: 4px solid #ffc107;
     background: linear-gradient(to right, white, #fff8e7);
+    cursor: default;
 }
 
 .section-card:hover {
@@ -75,13 +72,7 @@ body {
     transition: all 0.2s;
 }
 
-.btn-like:hover {
-    background-color: #e0245e;
-    color: white;
-    border-color: #e0245e;
-}
-
-.btn-like.liked {
+.btn-like:hover, .btn-like.liked {
     background-color: #e0245e;
     color: white;
     border-color: #e0245e;
@@ -101,122 +92,35 @@ body {
     width: 100%;
 }
 
-.delete-btn {
+.delete-btn, .edit-btn, .pin-btn {
     background: none;
     border: none;
-    color: #dc3545;
     cursor: pointer;
     padding: 5px 10px;
     border-radius: 5px;
     transition: all 0.2s;
 }
 
-.delete-btn:hover {
-    background: #dc3545;
-    color: white;
-}
+.delete-btn { color: #dc3545; }
+.delete-btn:hover { background: #dc3545; color: white; }
 
-.edit-btn {
-    background: none;
-    border: none;
-    color: #667eea;
-    cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 5px;
-    transition: all 0.2s;
-}
+.edit-btn { color: #667eea; }
+.edit-btn:hover { background: #667eea; color: white; }
 
-.edit-btn:hover {
-    background: #667eea;
-    color: white;
-}
+.pin-btn { color: #ffc107; }
+.pin-btn:hover, .pin-btn.pinned { background: #ffc107; color: white; }
 
-.pin-btn {
-    background: none;
-    border: none;
-    color: #ffc107;
-    cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 5px;
-    transition: all 0.2s;
-}
+.inline-edit { display: none; }
+.inline-edit.active { display: block; }
+.inline-display { display: block; }
+.inline-display.hidden { display: none; }
 
-.pin-btn:hover {
-    background: #ffc107;
-    color: white;
-}
-
-.pin-btn.pinned {
-    background: #ffc107;
-    color: white;
-}
-
-.drag-handle {
-    cursor: grab;
-    padding: 8px 12px;
-    color: #6c757d;
-    display: inline-flex;
-    align-items: center;
-    border-radius: 5px;
-    transition: all 0.2s;
-}
-
-.drag-handle:hover {
-    background: #e9ecef;
-    color: #495057;
-}
-
-.drag-handle:active {
-    cursor: grabbing;
-}
-
-.inline-edit {
-    display: none;
-}
-
-.inline-edit.active {
-    display: block;
-}
-
-.inline-display {
-    display: block;
-}
-
-.inline-display.hidden {
-    display: none;
-}
-
-.markdown-content {
-    line-height: 1.6;
-}
-
-.markdown-content h1 {
-    font-size: 2rem;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.markdown-content h2 {
-    font-size: 1.5rem;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.markdown-content h3 {
-    font-size: 1.25rem;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.markdown-content p {
-    margin-bottom: 1rem;
-}
-
-.markdown-content ul, .markdown-content ol {
-    margin-left: 1.5rem;
-    margin-bottom: 1rem;
-}
-
+.markdown-content { line-height: 1.6; }
+.markdown-content h1 { font-size: 2rem; margin-top: 1.5rem; margin-bottom: 1rem; }
+.markdown-content h2 { font-size: 1.5rem; margin-top: 1.5rem; margin-bottom: 1rem; }
+.markdown-content h3 { font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 1rem; }
+.markdown-content p { margin-bottom: 1rem; }
+.markdown-content ul, .markdown-content ol { margin-left: 1.5rem; margin-bottom: 1rem; }
 .markdown-content code {
     background: #f8f9fa;
     padding: 2px 6px;
@@ -224,7 +128,6 @@ body {
     font-family: 'Courier New', monospace;
     font-size: 0.9em;
 }
-
 .markdown-content pre {
     background: #0d1117;
     color: #e6edf3;
@@ -233,28 +136,15 @@ body {
     overflow-x: auto;
     margin-bottom: 1rem;
 }
-
-.markdown-content pre code {
-    background: none;
-    padding: 0;
-    color: inherit;
-}
-
+.markdown-content pre code { background: none; padding: 0; color: inherit; }
 .markdown-content blockquote {
     border-left: 4px solid #667eea;
     padding-left: 1rem;
     margin: 1rem 0;
     color: #6c757d;
 }
-
-.markdown-content a {
-    color: #667eea;
-    text-decoration: none;
-}
-
-.markdown-content a:hover {
-    text-decoration: underline;
-}
+.markdown-content a { color: #667eea; text-decoration: none; }
+.markdown-content a:hover { text-decoration: underline; }
 
 .badge-pinned {
     background-color: #ffc107;
@@ -263,34 +153,6 @@ body {
     padding: 3px 8px;
     border-radius: 12px;
     margin-left: 10px;
-}
-
-.fab-button {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.fab-button:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-}
-
-.fab-button i {
-    font-size: 24px;
 }
 
 .add-section-btn {
@@ -311,30 +173,9 @@ body {
     transform: translateY(-2px);
 }
 
-.add-section-btn i {
-    font-size: 2rem;
-    margin-bottom: 10px;
-}
-
-.add-section-btn h5 {
-    margin: 10px 0 5px 0;
-}
-
-.add-section-btn p {
-    margin: 0;
-    font-size: 0.9rem;
-}
-
-.section-card.dragging {
-    opacity: 0.4;
-    cursor: grabbing;
-}
-
-.section-card.drag-over {
-    border-top: 3px solid #667eea;
-    margin-top: -3px;
-    background-color: #f8f9fa;
-}
+.add-section-btn i { font-size: 2rem; margin-bottom: 10px; }
+.add-section-btn h5 { margin: 10px 0 5px 0; }
+.add-section-btn p { margin: 0; font-size: 0.9rem; }
 
 .drag-handle {
     cursor: grab;
@@ -356,35 +197,41 @@ body {
     cursor: grabbing;
 }
 
+.section-card.pinned .drag-handle,
+.section-card.editing-mode .drag-handle {
+    display: none !important;
+}
+
+.section-card.pinned,
+.section-card.editing-mode {
+    cursor: default !important;
+}
+
 .section-card.dragging {
     opacity: 0.4;
-    cursor: grabbing;
+    transform: scale(0.98);
 }
 
 .section-card.drag-over {
     border-top: 3px solid #667eea !important;
-    margin-top: -3px;
-    padding-top: 25px;
     background-color: #f0f7ff;
-    position: relative;
 }
 
-.drag-handle {
-    cursor: grab;
-    padding: 8px 12px;
-    color: #6c757d;
-    display: inline-flex;
-    align-items: center;
-    border-radius: 5px;
-    transition: all 0.2s;
-    user-select: none;
+.section-title-input {
+    font-size: calc(1.3rem + .6vw);
+    font-weight: 700;
+    color: #212529;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+    transition: border-color 0.2s ease;
 }
 
-.drag-handle:hover {
-    background: #e9ecef;
-    color: #495057;
-}
-
-.drag-handle:active {
-    cursor: grabbing;
+.section-title-input:focus {
+    background-color: transparent;
+    border-bottom: 2px solid #212529;
+    box-shadow: none;
+    outline: none;
 }

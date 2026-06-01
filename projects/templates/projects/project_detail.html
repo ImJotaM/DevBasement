@@ -24,15 +24,9 @@
     <div class="project-header">
         <div class="row align-items-center">
             <div class="col-md-9">
-                <div id="title-display" class="inline-display">
+                <div class="inline-display">
                     <h1 class="display-4 fw-bold mb-3">{{ project.title }}</h1>
                 </div>
-                {% if user == project.owner %}
-                <div id="title-edit" class="inline-edit mb-3">
-                    <input type="text" id="title-input" class="form-control" value="{{ project.title }}">
-                    <button class="btn btn-sm btn-primary mt-2" onclick="saveField({{ project.id }}, 'title')">Salvar</button>
-                </div>
-                {% endif %}
                 
                 <div class="d-flex align-items-center gap-3">
                     <div class="d-flex align-items-center gap-2">
@@ -51,9 +45,14 @@
             </div>
             <div class="col-md-3 text-end mt-3 mt-md-0">
                 {% if user == project.owner %}
-                    <button class="btn btn-light rounded-pill" onclick="editField('title')">
+                <form method="POST" action="{% url 'update_project_field' project.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="field" value="title">    
+                    <input type="hidden" name="value" id="title-value" value="{{ project.title }}">
+                    <button type="button" class="btn btn-light rounded-pill" onclick="editTitle()">
                         <i class="fas fa-pencil-alt me-1"></i> Editar Título
                     </button>
+                </form>
                 {% endif %}
             </div>
         </div>
@@ -64,53 +63,75 @@
             <div id="sections-container" data-project-id="{{ project.id }}">
                 {% for section in project.sections.all %}
                 <div class="section-card {% if section.is_pinned %}pinned{% endif %}" id="section-{{ section.id }}" data-section-id="{{ section.id }}">
-                    <div class="section-header">
-                        <div class="d-flex align-items-center gap-2">
-                            {% if user == project.owner and not section.is_description %}
-                            <i class="fas fa-grip-vertical drag-handle"></i>
-                            {% endif %}
-                            <div id="section-title-display-{{ section.id }}">
-                                <h3 class="mb-0">{{ section.title }}</h3>
-                                {% if section.is_pinned %}
-                                <span class="badge-pinned"><i class="fas fa-thumbtack"></i> Fixado</span>
+                    
+                    <form method="POST" action="{% url 'update_section' section.id %}">
+                        {% csrf_token %}
+
+                        <div class="section-header">
+                            <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                {% if user == project.owner and not section.is_description %}
+                                <i class="fas fa-grip-vertical drag-handle"></i>
+                                {% endif %}
+                                
+                                <div class="flex-grow-1">
+                                    <div id="section-title-display-{{ section.id }}" class="inline-display">
+                                        <h3 class="mb-0 d-inline-block">{{ section.title }}</h3>
+                                        {% if section.is_pinned %}
+                                        <span class="badge-pinned"><i class="fas fa-thumbtack"></i> Fixado</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div id="section-title-edit-{{ section.id }}" class="inline-edit">
+                                        <input type="text" name="title" class="form-control section-title-input" value="{{ section.title }}">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if user == project.owner %}
+                            <div class="d-flex align-items-center">
+                                {% if not section.is_description %}
+                                <a href="#" onclick="event.preventDefault(); this.closest('.section-card').querySelector('.pin-form').submit();" class="pin-btn {% if section.is_pinned %}pinned{% endif %} me-1" title="Fixar/Desfixar">
+                                    <i class="fas fa-thumbtack"></i>
+                                </a>
+                                {% endif %}
+                                <button type="button" class="edit-btn me-2" onclick="toggleEdit({{ section.id }})" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                {% if not section.is_description %}
+                                <a href="#" onclick="event.preventDefault(); if(confirm('Tem certeza que deseja excluir esta seção?')) this.closest('.section-card').querySelector('.delete-form').submit();" class="delete-btn" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                </a>
                                 {% endif %}
                             </div>
-                        </div>
-                        {% if user == project.owner %}
-                        <div>
-                            {% if not section.is_description %}
-                            <button class="pin-btn {% if section.is_pinned %}pinned{% endif %}" onclick="togglePinSection({{ section.id }})" title="Fixar/Desfixar">
-                                <i class="fas fa-thumbtack"></i>
-                            </button>
-                            {% endif %}
-                            <button class="edit-btn me-2" onclick="editSection({{ section.id }})" title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            {% if not section.is_description %}
-                            <button class="delete-btn" onclick="deleteSection({{ section.id }})" title="Excluir">
-                                <i class="fas fa-trash"></i>
-                            </button>
                             {% endif %}
                         </div>
+
+                        <div class="section-body">
+                            <div id="section-display-{{ section.id }}" class="inline-display">
+                                <div class="markdown-content" data-markdown="{{ section.content }}">
+                                    {{ section.content }}
+                                </div>
+                            </div>
+
+                            <div id="section-edit-{{ section.id }}" class="inline-edit">
+                                <textarea name="content" class="form-control mb-2" rows="10">{{ section.content }}</textarea>
+                                <small class="text-muted d-block mb-2">Markdown suportado: títulos, listas, código, links, etc.</small>
+                                <button type="submit" class="btn btn-sm btn-primary">Salvar</button>
+                                <button type="button" class="btn btn-sm btn-secondary" onclick="toggleEdit({{ section.id }})">Cancelar</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    {% if user == project.owner %}
+                        {% if not section.is_description %}
+                        <form method="POST" action="{% url 'toggle_pin_section' section.id %}" class="pin-form d-none">{% csrf_token %}</form>
+                        <form method="POST" action="{% url 'delete_section' section.id %}" class="delete-form d-none">{% csrf_token %}</form>
                         {% endif %}
-                    </div>
+                    {% endif %}
 
-                    <div id="section-display-{{ section.id }}" class="inline-display">
-                        <div id="section-content-display-{{ section.id }}" class="markdown-content" data-markdown="{{ section.content }}">
-                            {{ section.content|linebreaks }}
-                        </div>
-                    </div>
-
-                    <div id="section-edit-{{ section.id }}" class="inline-edit">
-                        <input type="text" id="section-title-{{ section.id }}" class="form-control mb-2" value="{{ section.title }}">
-                        <textarea id="section-content-{{ section.id }}" class="form-control mb-2" rows="10">{{ section.content }}</textarea>
-                        <small class="text-muted d-block mb-2">Markdown suportado: títulos, listas, código, links, etc.</small>
-                        <button class="btn btn-sm btn-primary" onclick="saveSection({{ section.id }})">Salvar</button>
-                        <button class="btn btn-sm btn-secondary" onclick="cancelEdit({{ section.id }})">Cancelar</button>
-                    </div>
                 </div>
                 {% empty %}
-                    <div class="project-card text-center py-5">
+                    <div id="empty-message" class="project-card text-center py-5">
                         <i class="fas fa-folder-open fa-3x mb-3 text-muted"></i>
                         <h5>Nenhuma seção ainda</h5>
                         <p class="text-muted">Clique no botão + para adicionar sua primeira seção!</p>
@@ -118,11 +139,11 @@
                 {% endfor %}
                 
                 {% if user == project.owner %}
-                <div class="add-section-btn" onclick="createNewSection({{ project.id }})">
-                    <i class="fas fa-plus-circle"></i>
-                    <h5>Adicionar Nova Seção</h5>
-                    <p class="text-muted">Clique para adicionar uma nova seção ao projeto</p>
-                </div>
+                    <div class="add-section-btn" onclick="addNewSection()">
+                        <i class="fas fa-plus-circle"></i>
+                        <h5>Adicionar Nova Seção</h5>
+                        <p class="text-muted">Clique para adicionar uma nova seção ao projeto</p>
+                    </div>
                 {% endif %}
             </div>
 
@@ -133,24 +154,25 @@
                 </h4>
                 
                 {% if user.is_authenticated %}
-                    <div class="d-flex gap-3 mb-4">
+                    <form method="POST" action="{% url 'add_comment' project.id %}" class="d-flex gap-3 mb-4">
+                        {% csrf_token %}
                         <div class="text-avatar-small" style="width: 48px; height: 48px; font-size: 1rem;">
                             {{ user.username|make_list|first|upper }}
                         </div>
                         <div class="flex-grow-1">
-                            <textarea id="commentContent" class="comment-input" rows="2" placeholder="Adicione um comentário..."></textarea>
+                            <textarea name="content" class="comment-input" rows="2" placeholder="Adicione um comentário..." required></textarea>
                             <div class="mt-2 text-end">
-                                <button onclick="addComment({{ project.id }})" class="btn btn-primary rounded-pill px-4">Comentar</button>
+                                <button type="submit" class="btn btn-primary rounded-pill px-4">Comentar</button>
                             </div>
                         </div>
-                    </div>
+                    </form>
                 {% else %}
                     <div class="alert alert-info text-center">
                         <a href="{% url 'login' %}" class="alert-link">Faça login</a> para comentar neste projeto.
                     </div>
                 {% endif %}
 
-                <div id="commentsList" class="mt-4">
+                <div class="mt-4">
                     {% for comment in project.comments.all %}
                         <div class="comment-card" id="comment-{{ comment.id }}">
                             <div class="d-flex gap-3">
@@ -178,10 +200,13 @@
         <div class="col-md-4">
             <div class="sidebar-card">
                 <div class="d-grid gap-2 mb-3">
-                    <button id="likeButton" class="btn-like {% if user_liked %}liked{% endif %}" onclick="toggleLike({{ project.id }})">
-                        <i class="{% if user_liked %}fas{% else %}far{% endif %} fa-heart me-2"></i> 
-                        <span id="likesCount">{{ project.likes.count }}</span> Curtidas
-                    </button>
+                    <form method="POST" action="{% url 'like_project' project.id %}">
+                        {% csrf_token %}
+                        <button type="submit" id="likeButton" class="btn-like {% if user_liked %}liked{% endif %}" style="width: 100%;">
+                            <i class="{% if user_liked %}fas{% else %}far{% endif %} fa-heart me-2"></i> 
+                            <span id="likesCount">{{ project.likes.count }}</span> Curtidas
+                        </button>
+                    </form>
                     {% if project.repo_url %}
                         <a href="{{ project.repo_url }}" target="_blank" class="btn btn-dark rounded-pill">
                             <i class="fab fa-github me-2"></i> Ver no GitHub
@@ -210,7 +235,7 @@
                 </div>
                 <div>
                     <small class="text-muted d-block">Status</small>
-                    <div id="status-display" class="inline-display">
+                    <div class="inline-display">
                         <strong>
                             {% if project.status == 'completed' %}
                                 <span class="text-success">✅ Concluído</span>
@@ -222,17 +247,16 @@
                         </strong>
                     </div>
                     {% if user == project.owner %}
-                    <div id="status-edit" class="inline-edit mt-2">
-                        <select id="status-input" class="form-select">
+                    <form method="POST" action="{% url 'update_project_field' project.id %}" class="mt-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="field" value="status">
+                        <select name="value" class="form-select">
                             <option value="planning" {% if project.status == 'planning' %}selected{% endif %}>Planejamento</option>
                             <option value="in_progress" {% if project.status == 'in_progress' %}selected{% endif %}>Em Desenvolvimento</option>
                             <option value="completed" {% if project.status == 'completed' %}selected{% endif %}>Concluído</option>
                         </select>
-                        <button class="btn btn-sm btn-primary mt-2" onclick="saveField({{ project.id }}, 'status')">Salvar</button>
-                    </div>
-                    <button class="btn btn-sm btn-outline-primary mt-2" onclick="editField('status')">
-                        <i class="fas fa-edit"></i> Editar status
-                    </button>
+                        <button type="submit" class="btn btn-sm btn-primary mt-2">Salvar Status</button>
+                    </form>
                     {% endif %}
                 </div>
             </div>
@@ -240,15 +264,10 @@
     </div>
 </div>
 
-{% if user == project.owner %}
-<button class="fab-button" onclick="createNewSection({{ project.id }})">
-    <i class="fas fa-plus"></i>
-</button>
-{% endif %}
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="{% static 'projects/js/project_detail.js' %}"></script>
+<script src="{% static 'projects/js/project_detail.js' %}" defer></script>
+
 </body>
 </html>

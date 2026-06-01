@@ -1,349 +1,15 @@
 let converter;
+let newSectionCounter = 0;
 let draggedItem = null;
+let reorderTimeout;
 
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof markdownit !== 'undefined') {
-        converter = markdownit({
-            html: true,
-            linkify: true,
-            typographer: true,
-            highlight: function(str, lang) {
-                return '<pre class="hljs"><code>' + converter.utils.escapeHtml(str) + '</code></pre>';
-            }
-        });
-        
-        document.querySelectorAll('.markdown-content').forEach(function(element) {
-            const markdown = element.getAttribute('data-markdown');
-            if (markdown) {
-                element.innerHTML = converter.render(markdown);
-            }
-        });
-    }
-    
-    initDragAndDrop();
-});
-
-function initDragAndDrop() {
-    const sectionsContainer = document.getElementById('sections-container');
-    if (!sectionsContainer) return;
-    
-    const sections = sectionsContainer.querySelectorAll('.section-card');
-    sections.forEach(section => {
-        const dragHandle = section.querySelector('.drag-handle');
-        if (!dragHandle) return;
-        
-        const newDragHandle = dragHandle.cloneNode(true);
-        dragHandle.parentNode.replaceChild(newDragHandle, dragHandle);
-        
-        newDragHandle.addEventListener('dragstart', function(e) {
-            draggedItem = section;
-            section.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', section.id);
-        });
-        
-        newDragHandle.addEventListener('dragend', function(e) {
-            section.classList.remove('dragging');
-            document.querySelectorAll('.section-card').forEach(s => {
-                s.classList.remove('drag-over');
-            });
-            draggedItem = null;
-        });
-        
-        section.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            if (section !== draggedItem) {
-                section.classList.add('drag-over');
-            }
-        });
-        
-        section.addEventListener('dragenter', function(e) {
-            e.preventDefault();
-            if (section !== draggedItem) {
-                section.classList.add('drag-over');
-            }
-        });
-        
-        section.addEventListener('dragleave', function(e) {
-            if (!section.contains(e.relatedTarget)) {
-                section.classList.remove('drag-over');
-            }
-        });
-        
-        section.addEventListener('drop', function(e) {
-            e.preventDefault();
-            section.classList.remove('drag-over');
-            
-            if (draggedItem && section !== draggedItem) {
-                const container = sectionsContainer;
-                const draggedIndex = Array.from(container.children).indexOf(draggedItem);
-                const targetIndex = Array.from(container.children).indexOf(section);
-                
-                if (draggedIndex < targetIndex) {
-                    section.parentNode.insertBefore(draggedItem, section.nextSibling);
-                } else {
-                    section.parentNode.insertBefore(draggedItem, section);
-                }
-                
-                saveOrder(container);
-            }
-        });
-        
-        section.setAttribute('draggable', 'false');
-        newDragHandle.setAttribute('draggable', 'true');
-    });
-}
-
-function saveOrder(container) {
-    const sectionIds = Array.from(container.querySelectorAll('.section-card')).map(card => 
-        parseInt(card.getAttribute('data-section-id'))
-    );
-    
-    const projectId = document.getElementById('sections-container').getAttribute('data-project-id');
-    
-    fetch(`/projects/${projectId}/section/reorder/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ section_ids: sectionIds })
-    });
-}
-
-function createNewSection(projectId) {
-    fetch(`/projects/${projectId}/section/create/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'title=Nova Seção&content=Escreva o conteúdo da sua seção aqui...'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const sectionsContainer = document.getElementById('sections-container');
-            const addButton = sectionsContainer.querySelector('.add-section-btn');
-            
-            const newSectionHtml = `
-                <div class="section-card" id="section-${data.section_id}" data-section-id="${data.section_id}">
-                    <div class="section-header">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="fas fa-grip-vertical drag-handle"></i>
-                            <div id="section-title-display-${data.section_id}">
-                                <h3 class="mb-0">${escapeHtml(data.title)}</h3>
-                            </div>
-                        </div>
-                        <div>
-                            <button class="pin-btn" onclick="togglePinSection(${data.section_id})" title="Fixar/Desfixar">
-                                <i class="fas fa-thumbtack"></i>
-                            </button>
-                            <button class="edit-btn me-2" onclick="editSection(${data.section_id})" title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="delete-btn" onclick="deleteSection(${data.section_id})" title="Excluir">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="section-display-${data.section_id}" class="inline-display hidden">
-                        <div id="section-content-display-${data.section_id}" class="markdown-content" data-markdown="${escapeHtml(data.content)}">
-                            ${escapeHtml(data.content).replace(/\n/g, '<br>')}
-                        </div>
-                    </div>
-
-                    <div id="section-edit-${data.section_id}" class="inline-edit active">
-                        <input type="text" id="section-title-${data.section_id}" class="form-control mb-2" value="${escapeHtml(data.title)}">
-                        <textarea id="section-content-${data.section_id}" class="form-control mb-2" rows="10">${escapeHtml(data.content)}</textarea>
-                        <small class="text-muted d-block mb-2">Markdown suportado: títulos, listas, código, links, etc.</small>
-                        <button class="btn btn-sm btn-primary" onclick="saveSection(${data.section_id})">Salvar</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteSection(${data.section_id})">Excluir</button>
-                    </div>
-                </div>
-            `;
-            
-            if (addButton) {
-                sectionsContainer.insertBefore(createElementFromHTML(newSectionHtml), addButton);
-            } else {
-                sectionsContainer.insertAdjacentHTML('afterbegin', newSectionHtml);
-            }
-            
-            initDragAndDrop();
-            
-            document.getElementById(`section-title-${data.section_id}`).focus();
-        }
-    });
-}
+let scrollSpeed = 0;
+let scrollAnimationFrame = null;
 
 function createElementFromHTML(htmlString) {
     const div = document.createElement('div');
     div.innerHTML = htmlString.trim();
     return div.firstChild;
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function editSection(sectionId) {
-    document.getElementById(`section-display-${sectionId}`).classList.add('hidden');
-    document.getElementById(`section-edit-${sectionId}`).classList.add('active');
-    document.getElementById(`section-title-${sectionId}`).focus();
-}
-
-function saveSection(sectionId) {
-    const title = document.getElementById(`section-title-${sectionId}`).value;
-    const content = document.getElementById(`section-content-${sectionId}`).value;
-    
-    fetch(`/projects/section/${sectionId}/update/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'title=' + encodeURIComponent(title) + '&content=' + encodeURIComponent(content)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById(`section-title-display-${sectionId}`).innerHTML = `<h3 class="mb-0">${escapeHtml(title)}</h3>`;
-            
-            const contentDisplay = document.getElementById(`section-content-display-${sectionId}`);
-            if (converter) {
-                contentDisplay.innerHTML = converter.render(content);
-            } else {
-                contentDisplay.innerHTML = escapeHtml(content).replace(/\n/g, '<br>');
-            }
-            contentDisplay.setAttribute('data-markdown', content);
-            
-            document.getElementById(`section-display-${sectionId}`).classList.remove('hidden');
-            document.getElementById(`section-edit-${sectionId}`).classList.remove('active');
-        }
-    });
-}
-
-function cancelEdit(sectionId) {
-    location.reload();
-}
-
-function deleteSection(sectionId) {
-    if (confirm('Tem certeza que deseja excluir esta seção?')) {
-        fetch(`/projects/section/${sectionId}/delete/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const sectionElement = document.getElementById(`section-${sectionId}`);
-                if (sectionElement) {
-                    sectionElement.remove();
-                }
-            }
-        });
-    }
-}
-
-function togglePinSection(sectionId) {
-    fetch(`/projects/section/${sectionId}/pin/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        }
-    });
-}
-
-function toggleLike(projectId) {
-    fetch(`/projects/${projectId}/like/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json'
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        const likeButton = document.getElementById('likeButton');
-        const likeIcon = likeButton.querySelector('i');
-        const likesSpan = document.getElementById('likesCount');
-        
-        if (data.liked) {
-            likeButton.classList.add('liked');
-            likeIcon.className = 'fas fa-heart me-2';
-        } else {
-            likeButton.classList.remove('liked');
-            likeIcon.className = 'far fa-heart me-2';
-        }
-        
-        likesSpan.textContent = data.likes_count;
-    });
-}
-
-function addComment(projectId) {
-    const content = document.getElementById('commentContent').value;
-    if (!content.trim()) {
-        alert('Digite um comentário!');
-        return;
-    }
-    
-    fetch(`/projects/${projectId}/comment/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'content=' + encodeURIComponent(content)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        }
-    });
-}
-
-function saveField(projectId, field) {
-    let value;
-    if (field === 'title') {
-        value = document.getElementById('title-input').value;
-    } else if (field === 'description') {
-        value = document.getElementById('description-input').value;
-    } else if (field === 'status') {
-        value = document.getElementById('status-input').value;
-    }
-    
-    fetch(`/projects/${projectId}/update/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'field=' + encodeURIComponent(field) + '&value=' + encodeURIComponent(value)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        }
-    });
-}
-
-function editField(field) {
-    document.getElementById(`${field}-display`).classList.add('hidden');
-    document.getElementById(`${field}-edit`).classList.add('active');
 }
 
 function getCookie(name) {
@@ -360,3 +26,304 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+function toggleEdit(sectionId) {
+    const displayDiv = document.getElementById(`section-display-${sectionId}`);
+    const editDiv = document.getElementById(`section-edit-${sectionId}`);
+    const titleDisplayDiv = document.getElementById(`section-title-display-${sectionId}`);
+    const titleEditDiv = document.getElementById(`section-title-edit-${sectionId}`);
+    
+    const currentCard = document.getElementById(`section-${sectionId}`);
+    
+    if (displayDiv && editDiv && titleDisplayDiv && titleEditDiv) {
+        if (displayDiv.classList.contains('hidden')) {
+
+            displayDiv.classList.remove('hidden');
+            titleDisplayDiv.classList.remove('hidden');
+            editDiv.classList.remove('active');
+            titleEditDiv.classList.remove('active');
+            
+            if (currentCard) {
+                currentCard.classList.remove('editing-mode');
+            }
+
+        } else {
+            
+            displayDiv.classList.add('hidden');
+            titleDisplayDiv.classList.add('hidden');
+            editDiv.classList.add('active');
+            titleEditDiv.classList.add('active');
+            
+            if (currentCard) {
+                currentCard.classList.add('editing-mode');
+                currentCard.setAttribute('draggable', 'false');
+            }
+            
+            const textArea = editDiv.querySelector('textarea');
+            if (textArea) {
+                setTimeout(() => {
+                    textArea.focus();
+                    
+                    const length = textArea.value.length;
+                    textArea.setSelectionRange(length, length);
+                }, 50);
+            }
+        }
+    }
+}
+
+function editTitle() {
+    const currentTitle = document.getElementById('title-value').value;
+    const newTitle = prompt('Editar título do projeto:', currentTitle);
+    if (newTitle && newTitle !== currentTitle) {
+        document.getElementById('title-value').value = newTitle;
+        document.querySelector('#title-value').closest('form').submit();
+    }
+}
+
+function addNewSection() {
+    newSectionCounter++;
+    const tempId = `temp-${Date.now()}-${newSectionCounter}`;
+    const sectionsContainer = document.getElementById('sections-container');
+    const addButton = document.querySelector('.add-section-btn');
+    const emptyMessage = document.getElementById('empty-message');
+    
+    if (addButton) {
+        addButton.classList.add('d-none');
+    }
+    if (emptyMessage) {
+        emptyMessage.classList.add('d-none');
+    }
+    
+    const newSectionHtml = `
+        <div class="section-card" id="section-${tempId}" data-temp-id="${tempId}">
+            <div class="section-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div>
+                        <h3 class="mb-0">Nova Seção</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-display-${tempId}" class="inline-display hidden">
+                <div class="markdown-content"></div>
+            </div>
+
+            <div id="section-edit-${tempId}" class="inline-edit active">
+                <input type="text" id="section-title-${tempId}" class="form-control mb-2" value="Nova Seção">
+                <textarea id="section-content-${tempId}" class="form-control mb-2" rows="10">Escreva o conteúdo da sua seção aqui...</textarea>
+                <small class="text-muted d-block mb-2">Markdown suportado: títulos, listas, código, links, etc.</small>
+                <button class="btn btn-sm btn-primary" onclick="saveNewSection('${tempId}')">Salvar</button>
+                <button class="btn btn-sm btn-secondary" onclick="deleteTempSection('${tempId}')">Cancelar</button>
+            </div>
+        </div>
+    `;
+    
+    if (addButton) {
+        sectionsContainer.insertBefore(createElementFromHTML(newSectionHtml), addButton);
+    } else {
+        sectionsContainer.insertAdjacentHTML('afterbegin', newSectionHtml);
+    }
+    
+    document.getElementById(`section-title-${tempId}`).focus();
+}
+
+function saveNewSection(tempId) {
+    const title = document.getElementById(`section-title-${tempId}`).value;
+    const content = document.getElementById(`section-content-${tempId}`).value;
+    const projectId = document.getElementById('sections-container').getAttribute('data-project-id');
+    
+    fetch(`/projects/${projectId}/section/create/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'title=' + encodeURIComponent(title) + '&content=' + encodeURIComponent(content)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+
+function deleteTempSection(tempId) {
+    const tempSection = document.getElementById(`section-${tempId}`);
+    if (tempSection) {
+        tempSection.remove();
+    }
+    
+    const addButton = document.querySelector('.add-section-btn');
+    const emptyMessage = document.getElementById('empty-message');
+
+    if (addButton) {
+        addButton.classList.remove('d-none');
+    }
+    if (emptyMessage) {
+        emptyMessage.classList.remove('d-none');
+    }
+}
+
+function handleAutoScroll() {
+    if (scrollSpeed !== 0) {
+        window.scrollBy(0, scrollSpeed);
+        scrollAnimationFrame = requestAnimationFrame(handleAutoScroll);
+    } else {
+        scrollAnimationFrame = null;
+    }
+}
+
+function initDragAndDrop() {
+    const container = document.getElementById('sections-container');
+    if (!container) return;
+
+    const cards = container.querySelectorAll('.section-card');
+    
+    cards.forEach(card => {
+        const handle = card.querySelector('.drag-handle');
+        if (!handle) return;
+
+        card.setAttribute('draggable', 'false');
+        
+        handle.addEventListener('mousedown', () => {
+            if (!card.classList.contains('editing-mode') && !card.classList.contains('pinned')) {
+                card.setAttribute('draggable', 'true');
+            }
+        });
+        
+        handle.addEventListener('mouseup', () => {
+            card.setAttribute('draggable', 'false');
+        });
+
+        card.addEventListener('dragstart', (e) => {
+            if (card.classList.contains('editing-mode') || card.classList.contains('pinned')) {
+                e.preventDefault();
+                return false;
+            }
+            draggedItem = card;
+            card.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        card.addEventListener('dragend', () => {
+            card.classList.remove('dragging');
+            card.setAttribute('draggable', 'false');
+            
+            const activeDragOvers = document.querySelectorAll('.section-card.drag-over');
+            activeDragOvers.forEach(c => c.classList.remove('drag-over'));
+            
+            draggedItem = null;
+            
+            scrollSpeed = 0;
+            if (scrollAnimationFrame) {
+                cancelAnimationFrame(scrollAnimationFrame);
+                scrollAnimationFrame = null;
+            }
+        });
+
+        card.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            
+            if (card !== draggedItem && !card.classList.contains('editing-mode') && !card.classList.contains('pinned')) {
+                card.classList.add('drag-over');
+            }
+
+            const threshold = 140;
+            const maxSpeed = 16;
+            const mouseY = e.clientY;
+            const viewHeight = window.innerHeight;
+
+            if (mouseY < threshold) {
+                scrollSpeed = -Math.max(4, Math.round((1 - mouseY / threshold) * maxSpeed));
+                if (!scrollAnimationFrame) {
+                    scrollAnimationFrame = requestAnimationFrame(handleAutoScroll);
+                }
+            } else if (mouseY > viewHeight - threshold) {
+                const distanceToBottom = viewHeight - mouseY;
+                scrollSpeed = Math.max(4, Math.round((1 - distanceToBottom / threshold) * maxSpeed));
+                if (!scrollAnimationFrame) {
+                    scrollAnimationFrame = requestAnimationFrame(handleAutoScroll);
+                }
+            } else {
+                scrollSpeed = 0;
+            }
+        });
+
+        card.addEventListener('dragleave', () => {
+            card.classList.remove('drag-over');
+        });
+
+        card.addEventListener('drop', (e) => {
+            e.preventDefault();
+            card.classList.remove('drag-over');
+
+            if (card.classList.contains('editing-mode') || card.classList.contains('pinned')) return;
+
+            if (draggedItem && card !== draggedItem) {
+                const allCards = Array.from(container.querySelectorAll('.section-card'));
+                const draggedIndex = allCards.indexOf(draggedItem);
+                const targetIndex = allCards.indexOf(card);
+
+                if (draggedIndex < targetIndex) {
+                    container.insertBefore(draggedItem, card.nextSibling);
+                } else {
+                    container.insertBefore(draggedItem, card);
+                }
+                saveOrder();
+            }
+        });
+    });
+}
+
+function saveOrder() {
+    clearTimeout(reorderTimeout); 
+
+    reorderTimeout = setTimeout(() => {
+        const container = document.getElementById('sections-container');
+        const projectId = container.getAttribute('data-project-id');
+        const cards = container.querySelectorAll('.section-card');
+        
+        const sectionIds = Array.from(cards)
+            .map(card => card.getAttribute('data-section-id'))
+            .filter(id => id !== null);
+
+        fetch(`/projects/${projectId}/section/reorder/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ section_ids: sectionIds })
+        });
+    }, 500);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof markdownit !== 'undefined') {
+        converter = markdownit({
+            html: true,
+            linkify: true,
+            typographer: true,
+            highlight: function(str, lang) {
+                return '<pre class="hljs"><code>' + markdownit().utils.escapeHtml(str) + '</code></pre>';
+            }
+        });
+        
+        document.querySelectorAll('.markdown-content').forEach(function(element) {
+            const markdown = element.getAttribute('data-markdown');
+            if (markdown) {
+                element.innerHTML = converter.render(markdown);
+            }
+        });
+    }
+    
+    if (typeof hljs !== 'undefined') {
+        document.querySelectorAll('pre code').forEach(function(block) {
+            hljs.highlightElement(block);
+        });
+    }
+
+    initDragAndDrop();
+});
