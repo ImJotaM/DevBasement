@@ -36,21 +36,24 @@ def create_project_view(request):
 
 @login_required
 def create_section(request, project_id):
-    project = get_object_or_404(Project, id=project_id, owner=request.user)
-    title = request.POST.get('title', 'Nova Seção')
-    content = request.POST.get('content', 'Escreva o conteúdo da sua seção aqui...')
-    
-    section = ProjectSection.objects.create(
-        project=project,
-        title=title,
-        content=content,
-        order=0
-    )
-    
-    return JsonResponse({
-        'success': True,
-        'section_id': section.id
-    })
+    if request.method == 'POST':
+        project = Project.objects.get(id=project_id, owner=request.user)
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        section_type = request.POST.get('section_type', 'text')
+        
+        last_order = project.sections.filter(is_pinned=False).count()
+
+        section = ProjectSection.objects.create(
+            project=project,
+            title=title,
+            content=content,
+            section_type=section_type,
+            order=last_order
+        )
+        return JsonResponse({'success': True, 'id': section.id})
+
+    return JsonResponse({'success': False}, status=400)
 
 @login_required
 def update_section(request, section_id):
@@ -75,6 +78,27 @@ def delete_section(request, section_id):
     project_id = section.project.id
     section.delete()
     return redirect('project_detail', project_id=project_id)
+
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import ProjectSection, SectionAnswer
+
+@login_required
+def answer_section(request, section_id):
+    if request.method == "POST":
+        section = get_object_or_404(ProjectSection, id=section_id)
+        content = request.POST.get("content")
+        
+        if content:
+            SectionAnswer.objects.create(
+                section=section,
+                user=request.user,
+                content=content
+            )
+        
+        return redirect('project_detail', project_id=section.project.id)
+        
+    return redirect('home')
 
 @login_required
 def toggle_pin_section(request, section_id):

@@ -35,7 +35,6 @@ body {
 .section-card.pinned {
     border-left: 4px solid #ffc107;
     background: linear-gradient(to right, white, #fff8e7);
-    cursor: default;
 }
 
 .section-card:hover {
@@ -177,46 +176,6 @@ body {
 .add-section-btn h5 { margin: 10px 0 5px 0; }
 .add-section-btn p { margin: 0; font-size: 0.9rem; }
 
-.drag-handle {
-    cursor: grab;
-    padding: 8px 12px;
-    color: #6c757d;
-    display: inline-flex;
-    align-items: center;
-    border-radius: 5px;
-    transition: all 0.2s;
-    user-select: none;
-}
-
-.drag-handle:hover {
-    background: #e9ecef;
-    color: #495057;
-}
-
-.drag-handle:active {
-    cursor: grabbing;
-}
-
-.section-card.pinned .drag-handle,
-.section-card.editing-mode .drag-handle {
-    display: none !important;
-}
-
-.section-card.pinned,
-.section-card.editing-mode {
-    cursor: default !important;
-}
-
-.section-card.dragging {
-    opacity: 0.4;
-    transform: scale(0.98);
-}
-
-.section-card.drag-over {
-    border-top: 3px solid #667eea !important;
-    background-color: #f0f7ff;
-}
-
 .section-title-input {
     font-size: calc(1.3rem + .6vw);
     font-weight: 700;
@@ -234,4 +193,38 @@ body {
     border-bottom: 2px solid #212529;
     box-shadow: none;
     outline: none;
+}
+
+.nav-tabs-custom {
+    background: white;
+    border-radius: 15px;
+    padding: 10px;
+    margin-bottom: 25px;
+    border: none;
+}
+
+.nav-tabs-custom .nav-link {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 25px;
+    color: #536471;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.nav-tabs-custom .nav-link:hover {
+    background-color: #f0f2f5;
+    color: #1da1f2;
+}
+
+.nav-tabs-custom .nav-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 15px;
 }

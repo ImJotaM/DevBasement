@@ -11,4 +11,5 @@ urlpatterns = [
     path('section/<int:section_id>/update/', views.update_section, name='update_section'),
     path('section/<int:section_id>/delete/', views.delete_section, name='delete_section'),
     path('section/<int:section_id>/pin/', views.toggle_pin_section, name='toggle_pin_section'),
+    path('section/<int:section_id>/answer/', views.answer_section, name='answer_section'),
 ]

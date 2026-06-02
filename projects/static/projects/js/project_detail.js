@@ -1,10 +1,5 @@
 let converter;
 let newSectionCounter = 0;
-let draggedItem = null;
-let reorderTimeout;
-
-let scrollSpeed = 0;
-let scrollAnimationFrame = null;
 
 function createElementFromHTML(htmlString) {
     const div = document.createElement('div');
@@ -56,7 +51,6 @@ function toggleEdit(sectionId) {
             
             if (currentCard) {
                 currentCard.classList.add('editing-mode');
-                currentCard.setAttribute('draggable', 'false');
             }
             
             const textArea = editDiv.querySelector('textarea');
@@ -88,31 +82,42 @@ function addNewSection() {
     const addButton = document.querySelector('.add-section-btn');
     const emptyMessage = document.getElementById('empty-message');
     
-    if (addButton) {
-        addButton.classList.add('d-none');
-    }
-    if (emptyMessage) {
-        emptyMessage.classList.add('d-none');
-    }
+    if (addButton) addButton.classList.add('d-none');
+    if (emptyMessage) emptyMessage.classList.add('d-none');
     
     const newSectionHtml = `
         <div class="section-card" id="section-${tempId}" data-temp-id="${tempId}">
-            <div class="section-header">
-                <div class="d-flex align-items-center gap-2">
-                    <div>
-                        <h3 class="mb-0">Nova Seção</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div id="section-display-${tempId}" class="inline-display hidden">
-                <div class="markdown-content"></div>
+            <div class="section-header mb-3">
+                <h3 class="mb-0">Nova Seção</h3>
             </div>
 
             <div id="section-edit-${tempId}" class="inline-edit active">
-                <input type="text" id="section-title-${tempId}" class="form-control mb-2" value="Nova Seção">
-                <textarea id="section-content-${tempId}" class="form-control mb-2" rows="10">Escreva o conteúdo da sua seção aqui...</textarea>
-                <small class="text-muted d-block mb-2">Markdown suportado: títulos, listas, código, links, etc.</small>
+                <div class="mb-2">
+                    <label class="form-label small fw-bold text-muted">Tipo de Conteúdo (Tag):</label>
+                    <select id="section-type-${tempId}" class="form-select form-select-sm" onchange="updateFormHint('${tempId}')">
+                        <option value="text">Texto Simples</option>
+                        <option value="question">Pergunta / Dúvida</option>
+                        <option value="reference">Referência / Link</option>
+                    </select>
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label small fw-bold text-muted">Título:</label>
+                    <input type="text" id="section-title-${tempId}" class="form-control" value="Nova Seção">
+                </div>
+
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label small fw-bold text-muted mb-0">Conteúdo:</label>
+                        <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2 small" style="font-size: 0.75rem;" onclick="insertCodeSnippet('section-content-${tempId}')">
+                            + Inserir Bloco de Código
+                        </button>
+                    </div>
+                    <textarea id="section-content-${tempId}" class="form-control" rows="8">Escreva aqui...</textarea>
+                </div>
+
+                <small id="hint-${tempId}" class="text-muted d-block mb-3">Markdown suportado: títulos, listas, código e links.</small>
+                
                 <button class="btn btn-sm btn-primary" onclick="saveNewSection('${tempId}')">Salvar</button>
                 <button class="btn btn-sm btn-secondary" onclick="deleteTempSection('${tempId}')">Cancelar</button>
             </div>
@@ -131,6 +136,7 @@ function addNewSection() {
 function saveNewSection(tempId) {
     const title = document.getElementById(`section-title-${tempId}`).value;
     const content = document.getElementById(`section-content-${tempId}`).value;
+    const sectionType = document.getElementById(`section-type-${tempId}`).value;
     const projectId = document.getElementById('sections-container').getAttribute('data-project-id');
     
     fetch(`/projects/${projectId}/section/create/`, {
@@ -139,7 +145,7 @@ function saveNewSection(tempId) {
             'X-CSRFToken': getCookie('csrftoken'),
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: 'title=' + encodeURIComponent(title) + '&content=' + encodeURIComponent(content)
+        body: 'title=' + encodeURIComponent(title) + '&content=' + encodeURIComponent(content) + '&section_type=' + encodeURIComponent(sectionType)
     })
     .then(response => response.json())
     .then(data => {
@@ -166,138 +172,39 @@ function deleteTempSection(tempId) {
     }
 }
 
-function handleAutoScroll() {
-    if (scrollSpeed !== 0) {
-        window.scrollBy(0, scrollSpeed);
-        scrollAnimationFrame = requestAnimationFrame(handleAutoScroll);
-    } else {
-        scrollAnimationFrame = null;
-    }
-}
+function insertCodeSnippet(textareaId) {
+    const textarea = document.getElementById(textareaId);
+    if (!textarea) return;
 
-function initDragAndDrop() {
-    const container = document.getElementById('sections-container');
-    if (!container) return;
-
-    const cards = container.querySelectorAll('.section-card');
+    const startPos = textarea.selectionStart;
+    const endPos = textarea.selectionEnd;
+    const textBefore = textarea.value.substring(0, startPos);
+    const textAfter = textarea.value.substring(endPos, textarea.value.length);
     
-    cards.forEach(card => {
-        const handle = card.querySelector('.drag-handle');
-        if (!handle) return;
+    const selectedText = textarea.value.substring(startPos, endPos) || "// insira seu código aqui";
+    const snippet = `\n\`\`\`javascript\n${selectedText}\n\`\`\`\n`;
 
-        card.setAttribute('draggable', 'false');
-        
-        handle.addEventListener('mousedown', () => {
-            if (!card.classList.contains('editing-mode') && !card.classList.contains('pinned')) {
-                card.setAttribute('draggable', 'true');
-            }
-        });
-        
-        handle.addEventListener('mouseup', () => {
-            card.setAttribute('draggable', 'false');
-        });
-
-        card.addEventListener('dragstart', (e) => {
-            if (card.classList.contains('editing-mode') || card.classList.contains('pinned')) {
-                e.preventDefault();
-                return false;
-            }
-            draggedItem = card;
-            card.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-        });
-
-        card.addEventListener('dragend', () => {
-            card.classList.remove('dragging');
-            card.setAttribute('draggable', 'false');
-            
-            const activeDragOvers = document.querySelectorAll('.section-card.drag-over');
-            activeDragOvers.forEach(c => c.classList.remove('drag-over'));
-            
-            draggedItem = null;
-            
-            scrollSpeed = 0;
-            if (scrollAnimationFrame) {
-                cancelAnimationFrame(scrollAnimationFrame);
-                scrollAnimationFrame = null;
-            }
-        });
-
-        card.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            
-            if (card !== draggedItem && !card.classList.contains('editing-mode') && !card.classList.contains('pinned')) {
-                card.classList.add('drag-over');
-            }
-
-            const threshold = 140;
-            const maxSpeed = 16;
-            const mouseY = e.clientY;
-            const viewHeight = window.innerHeight;
-
-            if (mouseY < threshold) {
-                scrollSpeed = -Math.max(4, Math.round((1 - mouseY / threshold) * maxSpeed));
-                if (!scrollAnimationFrame) {
-                    scrollAnimationFrame = requestAnimationFrame(handleAutoScroll);
-                }
-            } else if (mouseY > viewHeight - threshold) {
-                const distanceToBottom = viewHeight - mouseY;
-                scrollSpeed = Math.max(4, Math.round((1 - distanceToBottom / threshold) * maxSpeed));
-                if (!scrollAnimationFrame) {
-                    scrollAnimationFrame = requestAnimationFrame(handleAutoScroll);
-                }
-            } else {
-                scrollSpeed = 0;
-            }
-        });
-
-        card.addEventListener('dragleave', () => {
-            card.classList.remove('drag-over');
-        });
-
-        card.addEventListener('drop', (e) => {
-            e.preventDefault();
-            card.classList.remove('drag-over');
-
-            if (card.classList.contains('editing-mode') || card.classList.contains('pinned')) return;
-
-            if (draggedItem && card !== draggedItem) {
-                const allCards = Array.from(container.querySelectorAll('.section-card'));
-                const draggedIndex = allCards.indexOf(draggedItem);
-                const targetIndex = allCards.indexOf(card);
-
-                if (draggedIndex < targetIndex) {
-                    container.insertBefore(draggedItem, card.nextSibling);
-                } else {
-                    container.insertBefore(draggedItem, card);
-                }
-                saveOrder();
-            }
-        });
-    });
+    textarea.value = textBefore + snippet + textAfter;
+    
+    textarea.focus();
+    const newCursorPos = startPos + snippet.length;
+    textarea.setSelectionRange(newCursorPos, newCursorPos);
 }
 
-function saveOrder() {
-    clearTimeout(reorderTimeout); 
-
-    reorderTimeout = setTimeout(() => {
-        const container = document.getElementById('sections-container');
-        const projectId = container.getAttribute('data-project-id');
-        const cards = container.querySelectorAll('.section-card');
-        
-        const sectionIds = Array.from(cards)
-            .map(card => card.getAttribute('data-section-id'))
-            .filter(id => id !== null);
-
-        fetch(`/projects/${projectId}/section/reorder/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ section_ids: sectionIds })
-        });
-    }, 500);
+function updateFormHint(tempId) {
+    const type = document.getElementById(`section-type-${tempId}`).value;
+    const hintElement = document.getElementById(`hint-${tempId}`);
+    const textarea = document.getElementById(`section-content-${tempId}`);
+    
+    if (type === 'question') {
+        hintElement.innerHTML = "<b>Modo Pergunta:</b> Usuários poderão responder e criar discussões específicas para sanar essa dúvida.";
+        if(textarea.value === "Escreva aqui...") textarea.value = "Qual a melhor abordagem para...";
+    } else if (type === 'reference') {
+        hintElement.innerHTML = "<b>Modo Referência:</b> Adicione links úteis no formato Markdown: <code class='text-dark'>[Nome do Site](https://link.com)</code> acompanhado de descrições.";
+        if(textarea.value === "Escreva aqui...") textarea.value = "- [Documentação Oficial](https://...)\n- [Artigo de Referência](https://...)";
+    } else {
+        hintElement.innerHTML = "Markdown suportado: títulos, listas, código e links.";
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -324,6 +231,4 @@ document.addEventListener('DOMContentLoaded', function() {
             hljs.highlightElement(block);
         });
     }
-
-    initDragAndDrop();
 });

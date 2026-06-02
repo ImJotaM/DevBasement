@@ -35,9 +35,18 @@ class ProjectLike(models.Model):
         unique_together = ['user', 'project']
 
 class ProjectSection(models.Model):
+    SECTION_TYPES = [
+        ('text', 'Texto Simples'),
+        ('question', 'Pergunta / Dúvida'),
+        ('reference', 'Referência / Link'),
+    ]
+
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='sections')
     title = models.CharField(max_length=200)
     content = models.TextField()
+    
+    section_type = models.CharField(max_length=20, choices=SECTION_TYPES, default='text')
+    
     order = models.IntegerField(default=0)
     is_pinned = models.BooleanField(default=False)
     is_description = models.BooleanField(default=False)
@@ -46,7 +55,21 @@ class ProjectSection(models.Model):
     
     class Meta:
         ordering = ['-is_pinned', 'order', '-created_at']
-    
+
+    @property
+    def answers_count(self):
+        return self.answers.count()
+
+class SectionAnswer(models.Model):
+    section = models.ForeignKey(ProjectSection, on_delete=models.CASCADE, related_name='answers')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='section_answers')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['created_at']
+
 class Comment(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
