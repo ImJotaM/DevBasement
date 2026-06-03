@@ -4,7 +4,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver    
 
 class User(AbstractUser):
-
     email = models.EmailField(unique=True)
 
     def __str__(self):
@@ -16,6 +15,13 @@ class Profile(models.Model):
     bio = models.TextField(max_length=500, blank=True, help_text="A short bio about the developer.")
     github_url = models.URLField(max_length=200, blank=True)
     website = models.URLField(max_length=200, blank=True)
+    
+    following = models.ManyToManyField(
+        'self', 
+        blank=True, 
+        symmetrical=False, 
+        related_name='followers'
+    )
 
     def __str__(self):
         return f"{self.user.username}'s Profile"

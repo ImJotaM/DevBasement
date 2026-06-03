@@ -109,13 +109,22 @@ def toggle_pin_section(request, section_id):
 
 @login_required
 def like_project(request, project_id):
-    project = get_object_or_404(Project, id=project_id)
-    like, created = ProjectLike.objects.get_or_create(user=request.user, project=project)
-    
-    if not created:
-        like.delete()
-    
-    return redirect('project_detail', project_id=project_id)
+    if request.method == "POST":
+        project = get_object_or_404(Project, id=project_id)
+        like, created = ProjectLike.objects.get_or_create(user=request.user, project=project)
+        
+        if not created:
+            like.delete()
+            liked = False
+        else:
+            liked = True
+            
+        return JsonResponse({
+            'liked': liked,
+            'likes_count': project.likes.count()
+        })
+        
+    return JsonResponse({'error': 'Método inválido'}, status=400)
 
 @login_required
 def add_comment(request, project_id):

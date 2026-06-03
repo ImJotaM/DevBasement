@@ -25,6 +25,22 @@ class Project(models.Model):
     @property
     def comments_count(self):
         return self.comments.count()
+    
+    @property
+    def questions(self):
+        return self.sections.filter(section_type='question')
+
+    @property
+    def questions_count(self):
+        return self.questions.count()
+
+    @property
+    def references(self):
+        return self.sections.filter(section_type='reference')
+
+    @property
+    def references_count(self):
+        return self.references.count()
 
 class ProjectLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='liked_projects')

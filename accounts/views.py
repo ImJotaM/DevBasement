@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 from .forms import SignupForm, LoginForm
 from projects.models import Project
 from .models import User
@@ -104,3 +106,27 @@ def edit_profile_view(request):
         return redirect('profile')
     
     return render(request, 'accounts/edit_profile.html', {'user': request.user})
+
+@login_required
+@require_POST
+def toggle_follow(request, username):
+
+    target_user = get_object_or_404(User, username=username)
+    
+    if target_user == request.user:
+        return JsonResponse({'error': 'Você não pode seguir a si mesmo.'}, status=400)
+    
+    my_profile = request.user.profile
+    target_profile = target_user.profile
+    
+    if my_profile.following.filter(id=target_profile.id).exists():
+        my_profile.following.remove(target_profile)
+        is_following = False
+    else:
+        my_profile.following.add(target_profile)
+        is_following = True
+        
+    return JsonResponse({
+        'is_following': is_following,
+        'followers_count': target_profile.followers.count()
+    })
