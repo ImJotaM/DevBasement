@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from .forms import SignupForm, LoginForm
-from projects.models import Project
+from projects.models import Project, ProjectLike
 from .models import User
 
 def login_view(request):
@@ -70,21 +70,39 @@ def signup_view(request):
     return render(request, 'accounts/signup.html', {'form': form})
 
 def profile_view(request, username=None):
-
     if username:
         profile_user = get_object_or_404(User, username=username)
     else:
+        if not request.user.is_authenticated:
+            return redirect('login')
         profile_user = request.user
     
     user_projects = Project.objects.filter(owner=profile_user).order_by('-created_at')
 
+    liked_entries = ProjectLike.objects.filter(user=profile_user).select_related('project', 'project__owner').order_by('-created_at')
+    liked_projects = [entry.project for entry in liked_entries]
+
+    user_profile = profile_user.profile
+    followers_count = user_profile.followers.count()
+    following_count = user_profile.following.count()
+    
+    total_likes = ProjectLike.objects.filter(project__owner=profile_user).count()
+
+    user_liked_project_ids = set()
+    if request.user.is_authenticated:
+        user_liked_project_ids = set(
+            ProjectLike.objects.filter(user=request.user).values_list('project_id', flat=True)
+        )
+
     context = {
         'profile_user': profile_user,
         'projects': user_projects,
-        'projects_count': user_projects.count,
-        'followers_count': 0,       
-        'following_count': 0,
-        'total_likes': 0,
+        'projects_count': user_projects.count(),
+        'liked_projects': liked_projects,
+        'followers_count': followers_count,       
+        'following_count': following_count,
+        'total_likes': total_likes,
+        'user_liked_project_ids': user_liked_project_ids,
     }
 
     return render(request, 'accounts/profile.html', context)

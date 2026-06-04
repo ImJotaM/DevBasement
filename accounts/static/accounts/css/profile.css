@@ -1,0 +1,165 @@
+body {
+    background-color: #f0f2f5;
+}
+
+.profile-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 40px;
+    margin-bottom: 30px;
+    color: white;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    object-fit: cover;
+}
+
+.text-avatar-large {
+    width: 120px;
+    height: 120px;
+    background: rgba(255,255,255,0.2);
+    font-size: 3rem;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 4px solid white;
+    margin: 0 auto;
+}
+
+.stat-card {
+    background: rgba(255,255,255,0.15);
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.nav-tabs-custom {
+    background: white;
+    border-radius: 15px;
+    padding: 10px;
+    margin-bottom: 25px;
+    border: none;
+}
+
+.nav-tabs-custom .nav-link {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 25px;
+    color: #536471;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.nav-tabs-custom .nav-link:hover {
+    background-color: #f0f2f5;
+    color: #1da1f2;
+}
+
+.nav-tabs-custom .nav-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.project-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.project-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+.sidebar-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.btn-follow {
+    background-color: #1da1f2;
+    border: none;
+    border-radius: 30px;
+    padding: 8px 25px;
+    font-weight: bold;
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.btn-follow:hover {
+    background-color: #0d8bd9;
+    color: white;
+}
+
+.btn-follow.following {
+    background-color: transparent;
+    border: 1px solid white;
+}
+
+.btn-follow.following:hover {
+    background-color: #0d8bd9;
+    color: white;
+    border: 1px solid #0d8bd9;
+}
+
+.badge-custom {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+}
+
+.interaction-btn {
+    color: #536471;
+    cursor: pointer;
+    transition: color 0.2s;
+    font-size: 0.95rem;
+}
+
+.like-btn:hover { color: #e0245e; }
+
+.comment-btn:hover { color: #1da1f2; }
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 15px;
+}
+
+.avatar-small {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.text-avatar-small {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
