@@ -61,7 +61,7 @@ document.querySelectorAll('.like-btn').forEach(button => {
             return;
         }
 
-        const url = `projects/${projectId}/like/`;
+        const url = this.getAttribute('data-url');
 
         fetch(url, {
             method: 'POST',
@@ -85,8 +85,10 @@ document.querySelectorAll('.like-btn').forEach(button => {
                 countSpan.textContent = data.likes_count;
 
                 if (data.liked) {
+                    this.classList.add('text-danger');
                     icon.className = 'fas fa-heart text-danger';
                 } else {
+                    this.classList.remove('text-danger');
                     icon.className = 'far fa-heart';
                 }
             }
