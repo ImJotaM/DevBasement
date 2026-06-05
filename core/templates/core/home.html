@@ -7,128 +7,8 @@
     <title>DevBasement - Projetos para Devs</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body {
-            background-color: #f0f2f5;
-        }
-        .sidebar-card {
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .project-card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: all 0.2s ease;
-        }
-        .project-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .btn-primary-custom {
-            background-color: #1da1f2;
-            border: none;
-            border-radius: 30px;
-            padding: 8px 20px;
-            font-weight: bold;
-            color: white;
-        }
-        .btn-primary-custom:hover {
-            background-color: #0d8bd9;
-            color: white;
-        }
-        .trending-tag {
-            color: #1da1f2;
-            font-weight: bold;
-        }
-        .trending-topic {
-            font-size: 13px;
-            color: #536471;
-        }
-        .login-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-align: center;
-        }
-        .login-btn {
-            background-color: white;
-            color: #667eea;
-            border: none;
-            border-radius: 30px;
-            padding: 10px 30px;
-            font-weight: bold;
-            margin: 10px;
-            transition: transform 0.2s;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .login-btn:hover {
-            transform: scale(1.05);
-            color: #667eea;
-        }
-        .interaction-btn {
-            color: #536471;
-            cursor: pointer;
-            transition: color 0.2s;
-            font-size: 0.95rem;
-        }
-        .like-btn:hover { color: #e0245e; }
-        .comment-btn:hover { color: #1da1f2; }
-        .question-btn:hover { color: #17bf63; }
-        .support-btn {
-            border-radius: 20px;
-            padding: 5px 15px;
-            font-size: 0.85rem;
-            font-weight: bold;
-        }
-        .item-badge {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            color: #495057;
-            font-weight: 500;
-        }
-        .text-avatar {
-            width: 80px; 
-            height: 80px; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            margin: 0 auto;
-        }
-        .text-avatar-small {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-        .text-avatar-tiny {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-size: 1rem;
-            font-weight: bold;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'core/css/home.css' %}">
 </head>
 <body>
 
@@ -139,21 +19,21 @@
             {% if user.is_authenticated %}
                 <div class="sidebar-card text-center pb-4 pt-4">
                     <div class="mb-3">
-                        <div class="text-avatar shadow-sm">
-                            {{ user.username|make_list|first|upper }}
-                        </div>
+                        <a href="{% url 'profile' %}" class="text-decoration-none">
+                            <div class="text-avatar shadow-sm">
+                                {{ user.username|make_list|first|upper }}
+                            </div>
+                        </a>
                     </div>
-                    <h5 class="mb-0 fw-bold">{{ user.first_name }} {{ user.last_name }}</h5>
+                    <h5 class="mb-0 fw-bold">
+                        <a href="{% url 'profile' %}" class="text-decoration-none text-dark">{{ user.first_name }} {{ user.last_name }}</a>
+                    </h5>
                     <p class="text-muted small mb-3">@{{ user.username }}</p>
                     
                     <div class="d-flex justify-content-center gap-3 mb-4">
                         <div class="text-center px-2">
                             <strong class="d-block text-dark">{{ user.projects.count }}</strong>
                             <span class="text-muted small">Projetos</span>
-                        </div>
-                        <div class="text-center px-2 border-start">
-                            <strong class="d-block text-dark">0</strong>
-                            <span class="text-muted small">Apoios</span>
                         </div>
                     </div>
 
@@ -183,21 +63,21 @@
 
             <div class="sidebar-card">
                 <h6>Tecnologias em Alta</h6>
-                <div class="mb-2">
-                    <div class="trending-topic small">Front-end</div>
-                    <div class="trending-tag">#ReactJS</div>
-                    <small class="text-muted">2.345 projetos</small>
-                </div>
-                <div class="mb-2">
-                    <div class="trending-topic small">Back-end</div>
-                    <div class="trending-tag">#Django</div>
-                    <small class="text-muted">1.892 projetos</small>
-                </div>
-                <div>
-                    <div class="trending-topic small">DevOps</div>
-                    <div class="trending-tag">#Docker</div>
-                    <small class="text-muted">987 projetos</small>
-                </div>
+                {% for tech in trending_technologies %}
+                    <div class="{% if not forloop.last %}mb-3{% endif %}">
+                        <div class="trending-topic small text-muted">Tecnologia #{{ forloop.counter }}</div>
+                        
+                        <div class="trending-tag fw-bold text-primary">
+                            #{{ tech.name }}
+                        </div>
+                        
+                        <small class="text-muted">
+                            {{ tech.num_projects }} projeto{{ tech.num_projects|pluralize }}
+                        </small>
+                    </div>
+                {% empty %}
+                    <p class="text-muted small mb-0">Nenhuma tecnologia em uso no momento.</p>
+                {% endfor %}
             </div>
         </div>
 
@@ -219,129 +99,230 @@
                 {% endif %}
             </div>
 
-            <div class="project-card">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div class="d-flex gap-2 align-items-center">
-                        <div class="text-avatar-small">A</div>
-                        <div>
-                            <strong>Ana Costa</strong>
-                            <span class="text-muted small d-block">@anacosta · Publicado há 2h</span>
+            {% for project in projects %}
+                <div class="project-card">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex gap-2 align-items-center">
+                            <a href="{% url 'profile_detail' project.owner.username %}" class="text-decoration-none text-white">
+                                <div class="text-avatar-small">
+                                    {{ project.owner.username|make_list|first|upper }}
+                                </div>
+                            </a>
+                            <div>
+                                <strong>
+                                    <a href="{% url 'profile_detail' project.owner.username %}" class="text-decoration-none text-dark">
+                                        {{ project.owner.first_name }} {{ project.owner.last_name }}
+                                    </a>
+                                </strong>
+                                <span class="text-muted small d-block">@{{ project.owner.username }} · Publicado em {{ project.created_at|date:"d/m/Y" }}</span>
+                            </div>
                         </div>
+                        {% if user.is_authenticated %}
+                            <button type="button" 
+                                    class="btn btn-link text-dark p-0 border-0 btn-report" 
+                                    data-project-id="{{ project.id }}" 
+                                    data-project-username="{{ project.owner.username }}"
+                                    data-project-slug="{{ project.slug }}"
+                                    data-project-title="{{ project.title }}"
+                                    style="font-size: 0.8rem; text-decoration: none;">
+                                <i class="bi bi-flag"></i>
+                            </button>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="text-muted" style="font-size: 1.15rem;"><i class="bi bi-flag"></i></a>
+                        {% endif %}
                     </div>
-                    <span class="badge bg-success rounded-pill">Concluído</span>
-                </div>
-                
-                <div class="mb-3">
-                    <h4 class="mb-2">TaskMaster API Restful</h4>
-                    <p class="text-dark">API completa para gerenciamento de tarefas com autenticação JWT. Construída para servir de base para qualquer front-end.</p>
                     
-                    <div class="d-flex flex-wrap gap-2 mt-3">
-                        <span class="badge item-badge"><i class="fab fa-github"></i> Repositório</span>
-                        <span class="badge item-badge"><i class="fas fa-file-code"></i> 4 Snippets</span>
-                        <span class="badge item-badge"><i class="fas fa-book"></i> Docs (Markdown)</span>
-                    </div>
-                </div>
+                    <div class="mb-3">
+                        <h4 class="mb-2">
+                            <a href="{% url 'project_detail' project.owner.username project.slug %}" class="text-decoration-none text-dark">
+                                {{ project.title }}
+                            </a>
+                        </h4>
+                        <p class="text-dark">{{ project.description|truncatewords:40 }}</p>
+                        
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            {% if project.repo_url %}
+                                <span class="badge item-badge"><i class="fab fa-github"></i> Repositório</span>
+                            {% endif %}
+                            
+                            {% if project.sections.count > 0 %}
+                                <span class="badge item-badge">
+                                    <i class="fas fa-file-code"></i> {{ project.sections.count }} Seções
+                                </span>
+                            {% endif %}
 
-                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                    <div class="d-flex gap-4">
-                        <div class="interaction-btn like-btn">
-                            <i class="far fa-heart"></i> <span>42</span>
-                        </div>
-                        <div class="interaction-btn comment-btn">
-                            <i class="far fa-comment"></i> <span>12</span>
-                        </div>
-                        <div class="interaction-btn question-btn">
-                            <i class="far fa-question-circle"></i> <span>3</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-outline-warning support-btn text-dark">
-                        <i class="fas fa-hand-holding-heart"></i> Apoiar
-                    </button>
-                </div>
-            </div>
+                            {% if project.questions_count > 0 %}
+                                <span class="badge item-badge">
+                                    <i class="fas fa-question-circle"></i> {{ project.questions_count }} Perguntas
+                                </span>
+                            {% endif %}
 
-            <div class="project-card">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div class="d-flex gap-2 align-items-center">
-                        <div class="text-avatar-small">C</div>
-                        <div>
-                            <strong>Carlos Mendes</strong>
-                            <span class="text-muted small d-block">@carlosmendes · Publicado há 5h</span>
-                        </div>
+                            {% if project.references_count > 0 %}
+                                <span class="badge item-badge">
+                                    <i class="fas fa-link"></i> {{ project.references_count }} Referências
+                                </span>
+                            {% endif %}
+                        </div>  
                     </div>
-                    <span class="badge bg-primary rounded-pill">Em Desenvolvimento</span>
-                </div>
-                
-                <div class="mb-3">
-                    <h4 class="mb-2">WeatherApp Mobile</h4>
-                    <p class="text-dark">App de previsão do tempo feito com React Native consumindo a OpenWeather API. Design focado em UX e animações fluidas.</p>
-                    
-                    <div class="d-flex flex-wrap gap-2 mt-3">
-                        <span class="badge item-badge"><i class="fab fa-github"></i> Front-end Repo</span>
-                        <span class="badge item-badge"><i class="fas fa-link"></i> Figma Design</span>
-                    </div>
-                </div>
 
-                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                    <div class="d-flex gap-4">
-                        <div class="interaction-btn like-btn">
-                            <i class="far fa-heart"></i> <span>28</span>
-                        </div>
-                        <div class="interaction-btn comment-btn">
-                            <i class="far fa-comment"></i> <span>8</span>
-                        </div>
-                        <div class="interaction-btn question-btn">
-                            <i class="far fa-question-circle"></i> <span>1</span>
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                        <div class="d-flex gap-4 w-100 justify-content-start">
+                            <div class="interaction-btn like-btn {% if project.id in user_liked_project_ids %}text-danger{% endif %}" 
+                                 data-project-id="{{ project.id }}" 
+                                 data-url="{% url 'like_project' project.owner.username project.slug %}">
+                                <i class="{% if project.id in user_liked_project_ids %}fas{% else %}far{% endif %} fa-heart"></i> 
+                                <span class="likes-count">{{ project.likes_count }}</span>
+                            </div>
+                            <div class="interaction-btn comment-btn">
+                                <a href="{% url 'project_detail' project.owner.username project.slug %}" class="text-decoration-none text-muted">
+                                    <i class="far fa-comment"></i> <span>{{ project.comments.count }}</span>
+                                </a>
+                            </div>
+                            <div class="interaction-btn favorite-btn {% if project.id in user_favorited_project_ids %}text-warning{% else %}text-muted{% endif %}" 
+                                data-project-id="{{ project.id }}" 
+                                data-url="{% url 'favorite_project' project.owner.username project.slug %}"
+                                style="cursor: pointer;">
+                                <i class="{% if project.id in user_favorited_project_ids %}fas{% else %}far{% endif %} fa-start"></i>
+                            </div>
                         </div>
                     </div>
-                    <button class="btn btn-outline-warning support-btn text-dark">
-                        <i class="fas fa-hand-holding-heart"></i> Apoiar
-                    </button>
                 </div>
-            </div>
+            {% empty %}
+                <div class="project-card text-center py-5">
+                    <p class="text-muted mb-0">Nenhum projeto foi publicado ainda. Seja o primeiro!</p>
+                </div>
+            {% endfor %}
         </div>
 
         <div class="col-md-3">
             <div class="sidebar-card">
-                <h6>Devs em Destaque</h6>
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="d-flex gap-2 align-items-center">
-                        <div class="text-avatar-tiny">R</div>
-                        <div class="lh-sm">
-                            <div><strong>Rafael Lima</strong></div>
-                            <div class="small text-muted">12 Projetos</div>
+                <h6>Devs Mais Novos</h6>
+                
+                {% for recommended_user in recommended_users %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex gap-2 align-items-center">
+                            <a href="{% url 'profile_detail' recommended_user.username %}" class="text-decoration-none text-white">
+                                <div class="text-avatar-tiny">
+                                    {{ recommended_user.username|make_list|first|upper }}
+                                </div>
+                            </a>
+                            <div class="lh-sm">
+                                <div>
+                                    <strong>
+                                        <a href="{% url 'profile_detail' recommended_user.username %}" class="text-decoration-none text-dark">
+                                            {{ recommended_user.first_name|default:recommended_user.username }}
+                                        </a>
+                                    </strong>
+                                </div>
+                                <div class="small text-muted">@{{ recommended_user.username }}</div>
+                            </div>
                         </div>
+                        
+                        {% if user.is_authenticated %}
+                            {% if recommended_user.profile in user.profile.following.all %}
+                                <button class="btn btn-outline-primary btn-sm rounded-pill px-3 follow-btn" data-username="{{ recommended_user.username }}">
+                                    Seguindo
+                                </button>
+                            {% else %}
+                                <button class="btn btn-primary btn-sm rounded-pill px-3 follow-btn" data-username="{{ recommended_user.username }}">
+                                    Seguir
+                                </button>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">Seguir</a>
+                        {% endif %}
                     </div>
-                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3">Seguir</button>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="d-flex gap-2 align-items-center">
-                        <div class="text-avatar-tiny">B</div>
-                        <div class="lh-sm">
-                            <div><strong>Beatriz Santos</strong></div>
-                            <div class="small text-muted">8 Projetos</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3">Seguir</button>
-                </div>
+                {% empty %}
+                    <p class="text-muted small mb-0">Nenhum outro usuário cadastrado.</p>
+                {% endfor %}
             </div>
 
             <div class="sidebar-card">
                 <h6>Links Úteis</h6>
                 <div class="mb-2 small">
-                    <a href="#" class="text-decoration-none text-muted">Sobre o DevBasement</a>
+                    <a href="{% url 'about' %}" class="text-decoration-none text-muted">Sobre o DevBasement</a>
                 </div>
                 <div class="mb-2 small">
-                    <a href="#" class="text-decoration-none text-muted">Termos de Uso</a>
+                    <a href="{% url 'terms' %}" class="text-decoration-none text-muted">Termos de Uso</a>
                 </div>
                 <div class="small">
-                    <a href="#" class="text-decoration-none text-muted">Diretrizes da Comunidade</a>
+                    <a href="{% url 'guidelines' %}" class="text-decoration-none text-muted">Diretrizes da Comunidade</a>
                 </div>
             </div>
+
+            {% if user.is_authenticated and user.is_staff %}
+                <div class="sidebar-card border border-warning bg-light-subtle shadow-sm">
+                    <h6 class="text-warning-emphasis fw-bold mb-2">
+                        <i class="fas fa-shield-alt me-1"></i> Painel de Moderação
+                    </h6>
+                    <p class="small text-muted mb-3">Você está logado como administrador da comunidade.</p>
+                    <div class="d-grid">
+                        <a href="{% url 'report_list' %}" class="btn btn-warning btn-sm rounded-pill fw-bold">
+                            <i class="fas fa-exclamation-triangle me-1"></i> Analisar Reports
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="reportModalLabel">Reportar Projeto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form id="reportForm">
+                {% csrf_token %}
+                <input type="hidden" id="modalProjectId" name="project_id">
+                
+                <div class="modal-body">
+                    <p class="text-muted small">Você está reportando o projeto: <strong id="modalProjectTitle" class="text-dark"></strong></p>
+                
+                    <div class="mb-3">
+                        <label for="reportReason" class="form-label fw-bold small">Selecione o Motivo:</label>
+                        <select class="form-select" id="reportReason" name="reason" required>
+                            <option value="" selected disabled>Escolha uma opção...</option>
+                            <option value="spam">Spam / Conteúdo Comercial</option>
+                            <option value="inappropriate">Conteúdo Inapropriado / Ofensivo</option>
+                            <option value="copyright">Violação de Direitos Autorais</option>
+                            <option value="other">Outro Motivo</option>
+                        </select>
+                    </div>
+                
+                    <div class="mb-3">
+                        <label for="reportDescription" class="form-label fw-bold small">Detalhes adicionais (Opcional):</label>
+                        <textarea class="form-control" id="reportDescription" name="description" rows="3" placeholder="Nos dê mais detalhes sobre a infração..."></textarea>
+                    </div>
+
+                    <div id="modalErrorMessage" class="alert alert-danger d-none py-2 small"></div>
+                </div>
+            
+                <div class="modal-footer d-flex justify-content-between">
+                    <div>
+                    {% if user.is_authenticated and user.is_staff %}
+                        <button type="button" id="btnAdminDelete" class="btn btn-danger fw-bold btn-sm">
+                            <i class="fas fa-trash-alt me-1"></i> Excluir Post
+                        </button>
+                    {% endif %}
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-light border btn-sm fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" id="btnSubmitReport" class="btn btn-dark btn-sm fw-bold">Enviar Report</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'core/js/home.js' %}"></script>
+
 </body>
 </html>

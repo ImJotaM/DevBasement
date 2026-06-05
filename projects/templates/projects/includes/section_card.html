@@ -1,0 +1,91 @@
+<div class="section-card {% if section.is_pinned %}pinned{% endif %}" id="section-{{ section.id }}" data-section-id="{{ section.id }}">
+    <form method="POST" action="{% url 'update_section' section.id %}">
+        {% csrf_token %}
+        <div class="section-header">
+            <div class="d-flex align-items-center gap-2 flex-grow-1">
+                
+                {% if section.section_type == 'question' %}
+                    <span title="Pergunta / Dúvida"><i class="fas fa-question-circle"></i></span>
+                {% elif section.section_type == 'reference' %}
+                    <span title="Referência / Link"><i class="fas fa-link"></i></span>
+                {% endif %}
+
+                <div class="flex-grow-1 ms-1">
+                    <div id="section-title-display-{{ section.id }}" class="inline-display">
+                        <h3 class="mb-0 d-inline-block fs-4 fw-semibold">{{ section.title }}</h3>
+                        {% if section.is_pinned %}
+                        <span class="badge-pinned ms-2"><i class="fas fa-thumbtack"></i> Fixado</span>
+                        {% endif %}
+                    </div>
+                    <div id="section-title-edit-{{ section.id }}" class="inline-edit">
+                        <input type="text" name="title" class="form-control section-title-input" value="{{ section.title }}">
+                    </div>
+                </div>
+            </div>
+            
+            {% if user == project.owner %}
+            <div class="d-flex align-items-center gap-1">
+                {% if not section.is_description %}
+                <a href="#" onclick="event.preventDefault(); this.closest('.section-card').querySelector('.pin-form').submit();" class="pin-btn {% if section.is_pinned %}pinned{% endif %} me-1" title="Fixar/Desfixar">
+                    <i class="fas fa-thumbtack"></i>
+                </a>
+                {% endif %}
+                <button type="button" class="edit-btn me-2" onclick="toggleEdit({{ section.id }})" title="Editar">
+                    <i class="fas fa-edit"></i>
+                </button>
+                {% if not section.is_description %}
+                <a href="#" onclick="event.preventDefault(); if(confirm('Tem certeza que deseja excluir esta seção?')) this.closest('.section-card').querySelector('.delete-form').submit();" class="delete-btn" title="Excluir">
+                    <i class="fas fa-trash"></i>
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="section-body">
+            <div id="section-display-{{ section.id }}" class="inline-display">
+                <div class="markdown-content" data-markdown="{{ section.content }}">
+                    {{ section.content }}
+                </div>
+            </div>
+            <div id="section-edit-{{ section.id }}" class="inline-edit">
+                <textarea name="content" class="form-control mb-2" rows="10">{{ section.content }}</textarea>
+                <small class="text-muted d-block mb-2">Markdown suportado: títulos, listas, código, links, etc.</small>
+                <button type="submit" class="btn btn-sm btn-primary">Salvar</button>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="toggleEdit({{ section.id }})">Cancelar</button>
+            </div>
+        </div>
+    </form>
+
+    {% if user == project.owner %}
+        {% if not section.is_description %}
+        <form method="POST" action="{% url 'toggle_pin_section' section.id %}" class="pin-form d-none">{% csrf_token %}</form>
+        <form method="POST" action="{% url 'delete_section' section.id %}" class="delete-form d-none">{% csrf_token %}</form>
+        {% endif %}
+    {% endif %}
+
+    {% if section.section_type == 'question' %}
+        <div class="section-answers-box mt-3 p-3 bg-light rounded" style="border-left: 4px solid #ffc107;">
+            <h6 class="small fw-bold text-muted mb-2">
+                <i class="fas fa-comments me-1"></i> Respostas desta dúvida ({{ section.answers_count }}):
+            </h6>
+            <div class="answers-list mb-3">
+                {% for answer in section.answers.all %}
+                    <div class="answer-item small border-bottom py-2">
+                        <strong>@{{ answer.user.username }}:</strong> {{ answer.content }}
+                        <span class="text-muted d-block text-end" style="font-size: 0.7rem;">{{ answer.created_at|date:"d/m H:i" }}</span>
+                    </div>
+                {% empty %}
+                    <p class="text-muted small mb-0 py-1">Nenhuma resposta ainda. Seja o primeiro a ajudar!</p>
+                {% endfor %}
+            </div>
+            {% if user.is_authenticated %}
+                <form action="{% url 'answer_section' section.id %}" method="POST" class="d-flex gap-2">
+                    {% csrf_token %}
+                    <input type="text" name="content" class="form-control form-control-sm" placeholder="Escreva uma resposta para essa pergunta..." required>
+                    <button type="submit" class="btn btn-sm btn-warning text-dark px-3 fw-bold">Responder</button>
+                </form>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>

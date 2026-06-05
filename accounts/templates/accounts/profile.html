@@ -7,152 +7,7 @@
     <title>{{ profile_user.username }} - DevBasement</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body {
-            background-color: #f0f2f5;
-        }
-        .profile-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 30px;
-            color: white;
-        }
-        .profile-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 4px solid white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            object-fit: cover;
-        }
-        .text-avatar-large {
-            width: 120px;
-            height: 120px;
-            background: rgba(255,255,255,0.2);
-            font-size: 3rem;
-            font-weight: bold;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            border: 4px solid white;
-            margin: 0 auto;
-        }
-        .stat-card {
-            background: rgba(255,255,255,0.15);
-            border-radius: 15px;
-            padding: 15px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-        }
-        .nav-tabs-custom {
-            background: white;
-            border-radius: 15px;
-            padding: 10px;
-            margin-bottom: 25px;
-            border: none;
-        }
-        .nav-tabs-custom .nav-link {
-            border: none;
-            border-radius: 10px;
-            padding: 12px 25px;
-            color: #536471;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .nav-tabs-custom .nav-link:hover {
-            background-color: #f0f2f5;
-            color: #1da1f2;
-        }
-        .nav-tabs-custom .nav-link.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .project-card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: all 0.2s ease;
-        }
-        .project-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transform: translateY(-2px);
-        }
-        .sidebar-card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .btn-follow {
-            background-color: #1da1f2;
-            border: none;
-            border-radius: 30px;
-            padding: 8px 25px;
-            font-weight: bold;
-            color: white;
-        }
-        .btn-follow:hover {
-            background-color: #0d8bd9;
-            color: white;
-        }
-        .btn-message {
-            background-color: transparent;
-            border: 1px solid #1da1f2;
-            border-radius: 30px;
-            padding: 8px 25px;
-            font-weight: bold;
-            color: #1da1f2;
-        }
-        .btn-message:hover {
-            background-color: #e8f5fe;
-        }
-        .badge-custom {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            color: #495057;
-            font-weight: 500;
-            padding: 5px 12px;
-            border-radius: 20px;
-        }
-        .interaction-btn {
-            color: #536471;
-            cursor: pointer;
-            transition: color 0.2s;
-            font-size: 0.95rem;
-        }
-        .like-btn:hover { color: #e0245e; }
-        .comment-btn:hover { color: #1da1f2; }
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            background: white;
-            border-radius: 15px;
-        }
-        .avatar-small {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .text-avatar-small {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'accounts/css/profile.css' %}">
 </head>
 <body>
 
@@ -175,9 +30,6 @@
             <div class="col-md-7 text-center text-md-start">
                 <h1 class="display-5 fw-bold mb-2">{{ profile_user.get_full_name|default:profile_user.username }}</h1>
                 <p class="mb-2">@{{ profile_user.username }}</p>
-                {% if profile_user.profile.bio %}
-                    <p class="mb-3">{{ profile_user.profile.bio }}</p>
-                {% endif %}
                 <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-md-start">
                     <div>
                         <i class="fas fa-calendar-alt me-1"></i> 
@@ -206,16 +58,20 @@
                             <i class="fas fa-edit me-1"></i> Editar Perfil
                         </a>
                     {% else %}
-                        <button class="btn-follow me-2">
-                            <i class="fas fa-user-plus me-1"></i> Seguir
-                        </button>
-                        <button class="btn-message">
-                            <i class="fas fa-envelope me-1"></i> Mensagem
-                        </button>
+                        {% if profile_user.profile in user.profile.following.all %}
+                            <button class="btn btn-outline-primary btn-sm rounded-pill px-3 follow-btn" data-username="{{ profile_user.username }}">
+                                Seguindo
+                            </button>
+                        {% else %}
+                            <button class="btn btn-primary btn-sm rounded-pill px-3 follow-btn" data-username="{{ profile_user.username }}">
+                                <i class="fas fa-user-plus me-1"></i> Seguir
+                            </button>
+                        {% endif %}
                     {% endif %}
                 {% endif %}
             </div>
         </div>
+        
         <div class="row mt-4">
             <div class="col-md-3">
                 <div class="stat-card">
@@ -225,7 +81,7 @@
             </div>
             <div class="col-md-3">
                 <div class="stat-card">
-                    <h3 class="fw-bold mb-0">{{ followers_count }}</h3>
+                    <h3 class="fw-bold mb-0" id="followers-count-val">{{ followers_count }}</h3>
                     <small>Seguidores</small>
                 </div>
             </div>
@@ -258,8 +114,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#saved">
-                        <i class="fas fa-bookmark me-1"></i> Salvos
+                    <a class="nav-link" data-bs-toggle="tab" href="#favorites">
+                        <i class="fas fa-star me-1"></i> Favoritos
                     </a>
                 </li>
             </ul>
@@ -289,7 +145,15 @@
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <h4 class="mb-2">{{ project.title }}</h4>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <h4 class="mb-0">{{ project.title }}</h4>
+                                        {% if project.is_private %}
+                                            <span class="badge bg-danger ms-2"><i class="fas fa-lock me-1"></i> Privado</span>
+                                        {% else %}
+                                            <span class="badge bg-success ms-2"><i class="fas fa-globe me-1"></i> Público</span>
+                                        {% endif %}
+                                    </div>
+
                                     <p class="text-dark">{{ project.description|truncatewords:30 }}</p>
                                     
                                     <div class="d-flex flex-wrap gap-2 mt-3">
@@ -309,14 +173,23 @@
 
                                 <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
                                     <div class="d-flex gap-4">
-                                        <div class="interaction-btn like-btn">
-                                            <i class="far fa-heart"></i> <span>{{ project.likes_count }}</span>
+                                        <div class="interaction-btn like-btn {% if project.id in user_liked_project_ids %}text-danger{% endif %}" 
+                                             data-project-id="{{ project.id }}" 
+                                             data-url="{% url 'like_project' project.owner.username project.slug %}">
+                                            <i class="{% if project.id in user_liked_project_ids %}fas{% else %}far{% endif %} fa-heart"></i> 
+                                            <span class="likes-count">{{ project.likes_count }}</span>
                                         </div>
                                         <div class="interaction-btn comment-btn">
                                             <i class="far fa-comment"></i> <span>{{ project.comments_count }}</span>
                                         </div>
+                                        <div class="interaction-btn favorite-btn {% if project.id in user_favorited_project_ids %}text-warning{% else %}text-muted{% endif %}" 
+                                            data-project-id="{{ project.id }}" 
+                                            data-url="{% url 'favorite_project' project.owner.username project.slug %}"
+                                            style="cursor: pointer;">
+                                            <i class="{% if project.id in user_favorited_project_ids %}fas{% else %}far{% endif %} fa-star"></i>
+                                        </div>
                                     </div>
-                                    <a href="{% url 'project_detail' project.id %}" class="btn btn-sm btn-outline-primary rounded-pill">
+                                    <a href="{% url 'project_detail' project.owner.username project.slug %}" class="btn btn-sm btn-outline-primary rounded-pill">
                                         Ver detalhes <i class="fas fa-arrow-right ms-1"></i>
                                     </a>
                                 </div>
@@ -328,7 +201,7 @@
                             <h5>Nenhum projeto publicado ainda</h5>
                             <p class="text-muted">{{ profile_user.username }} ainda não compartilhou nenhum projeto.</p>
                             {% if user == profile_user %}
-                                <a href="{% url 'create_project' %}" class="btn btn-primary-custom mt-2">
+                                <a href="{% url 'create_project' %}" class="btn btn-primary mt-2 rounded-pill">
                                     <i class="fas fa-plus-circle me-1"></i> Criar meu primeiro projeto
                                 </a>
                             {% endif %}
@@ -337,19 +210,162 @@
                 </div>
 
                 <div class="tab-pane fade" id="likes">
-                    <div class="empty-state">
-                        <i class="fas fa-heart fa-4x mb-3 text-muted"></i>
-                        <h5>Projetos curtidos</h5>
-                        <p class="text-muted">Os projetos que {{ profile_user.username }} curtiu aparecerão aqui.</p>
-                    </div>
+                    {% if liked_projects %}
+                        {% for project in liked_projects %}
+                            <div class="project-card">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <div class="text-avatar-small">
+                                            {{ project.owner.username|make_list|first|upper }}
+                                        </div>
+                                        <div>
+                                            <strong>{{ project.owner.get_full_name|default:project.owner.username }}</strong>
+                                            <span class="text-muted small d-block">@{{ project.owner.username }}</span>
+                                        </div>
+                                    </div>
+                                    {% if project.status == 'completed' %}
+                                        <span class="badge bg-success rounded-pill">Concluído</span>
+                                    {% elif project.status == 'in_progress' %}
+                                        <span class="badge bg-primary rounded-pill">Em Desenvolvimento</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary rounded-pill">Planejamento</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <h4 class="mb-0">{{ project.title }}</h4>
+                                        {% if project.is_private %}
+                                            <span class="badge bg-danger ms-2"><i class="fas fa-lock me-1"></i> Privado</span>
+                                        {% else %}
+                                            <span class="badge bg-success ms-2"><i class="fas fa-globe me-1"></i> Público</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <p class="text-dark">{{ project.description|truncatewords:30 }}</p>
+                                    
+                                    <div class="d-flex flex-wrap gap-2 mt-3">
+                                        {% if project.repo_url %}
+                                            <a href="{{ project.repo_url }}" target="_blank" class="badge badge-custom text-decoration-none">
+                                                <i class="fab fa-github"></i> Repositório
+                                            </a>
+                                        {% endif %}
+                                        {% if project.demo_url %}
+                                            <a href="{{ project.demo_url }}" target="_blank" class="badge badge-custom text-decoration-none">
+                                                <i class="fas fa-external-link-alt"></i> Demo
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                                    <div class="d-flex gap-4">
+                                        <div class="interaction-btn like-btn {% if project.id in user_liked_project_ids %}text-danger{% endif %}" 
+                                             data-project-id="{{ project.id }}" 
+                                             data-url="{% url 'like_project' project.owner.username project.slug %}">
+                                            <i class="{% if project.id in user_liked_project_ids %}fas{% else %}far{% endif %} fa-heart"></i> 
+                                            <span class="likes-count">{{ project.likes_count }}</span>
+                                        </div>
+                                        <div class="interaction-btn comment-btn">
+                                            <i class="far fa-comment"></i> <span>{{ project.comments_count }}</span>
+                                        </div>
+                                    </div>
+                                    <a href="{% url 'project_detail' project.owner.username project.slug %}" class="btn btn-sm btn-outline-primary rounded-pill">
+                                        Ver detalhes <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-heart fa-4x mb-3 text-muted"></i>
+                            <h5>Nenhum projeto curtido</h5>
+                            <p class="text-muted">Os projetos que {{ profile_user.username }} curtir aparecerão aqui.</p>
+                        </div>
+                    {% endif %}
                 </div>
 
-                <div class="tab-pane fade" id="saved">
-                    <div class="empty-state">
-                        <i class="fas fa-bookmark fa-4x mb-3 text-muted"></i>
-                        <h5>Projetos salvos</h5>
-                        <p class="text-muted">Os projetos salvos por {{ profile_user.username }} aparecerão aqui.</p>
-                    </div>
+                <div class="tab-pane fade" id="favorites">
+                    {% if favorited_projects %}
+                        {% for project in favorited_projects %}
+                            <div class="project-card">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <div class="text-avatar-small">
+                                            {{ project.owner.username|make_list|first|upper }}
+                                        </div>
+                                        <div>
+                                            <strong>{{ project.owner.get_full_name|default:project.owner.username }}</strong>
+                                            <span class="text-muted small d-block">@{{ project.owner.username }} · {{ project.created_at|timesince }} atrás</span>
+                                        </div>
+                                    </div>
+                                    {% if project.status == 'completed' %}
+                                        <span class="badge bg-success rounded-pill">Concluído</span>
+                                    {% elif project.status == 'in_progress' %}
+                                        <span class="badge bg-primary rounded-pill">Em Desenvolvimento</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary rounded-pill">Planejamento</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <h4 class="mb-0">{{ project.title }}</h4>
+                                        {% if project.is_private %}
+                                            <span class="badge bg-danger ms-2"><i class="fas fa-lock me-1"></i> Privado</span>
+                                        {% else %}
+                                            <span class="badge bg-success ms-2"><i class="fas fa-globe me-1"></i> Público</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <p class="text-dark">{{ project.description|truncatewords:30 }}</p>
+                                    
+                                    <div class="d-flex flex-wrap gap-2 mt-3">
+                                        {% if project.repo_url %}
+                                            <a href="{{ project.repo_url }}" target="_blank" class="badge badge-custom text-decoration-none">
+                                                <i class="fab fa-github"></i> Repositório
+                                            </a>
+                                        {% endif %}
+                                        {% if project.demo_url %}
+                                            <a href="{{ project.demo_url }}" target="_blank" class="badge badge-custom text-decoration-none">
+                                                <i class="fas fa-external-link-alt"></i> Demo
+                                            </a>
+                                        {% endif %}
+                                        <span class="badge badge-custom"><i class="fas fa-calendar"></i> {{ project.created_at|date:"d/m/Y" }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                                    <div class="d-flex gap-4">
+                                        <div class="interaction-btn like-btn {% if project.id in user_liked_project_ids %}text-danger{% endif %}" 
+                                            data-project-id="{{ project.id }}" 
+                                            data-url="{% url 'like_project' project.owner.username project.slug %}">
+                                            <i class="{% if project.id in user_liked_project_ids %}fas{% else %}far{% endif %} fa-heart"></i> 
+                                            <span class="likes-count">{{ project.likes_count }}</span>
+                                        </div>
+                                        <div class="interaction-btn comment-btn">
+                                            <i class="far fa-comment"></i> <span>{{ project.comments_count }}</span>
+                                        </div>
+                                        <div class="interaction-btn favorite-btn {% if project.id in user_favorited_project_ids %}text-warning{% else %}text-muted{% endif %}" 
+                                            data-project-id="{{ project.id }}" 
+                                            data-url="{% url 'favorite_project' project.owner.username project.slug %}"
+                                            style="cursor: pointer;">
+                                            <i class="{% if project.id in user_favorited_project_ids %}fas{% else %}far{% endif %} fa-star"></i>
+                                        </div>
+                                    </div>
+                                    <a href="{% url 'project_detail' project.owner.username project.slug %}" class="btn btn-sm btn-outline-primary rounded-pill">
+                                        Ver detalhes <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-star fa-4x mb-3 text-muted"></i>
+                            <h5>Nenhum projeto favoritado</h5>
+                            <p class="text-muted">Os projetos favoritados por {{ profile_user.username }} aparecerão aqui.</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -364,45 +380,6 @@
                         Nenhuma biografia adicionada ainda.
                     {% endif %}
                 </p>
-            </div>
-
-            <div class="sidebar-card">
-                <h6><i class="fas fa-code me-2"></i> Tecnologias</h6>
-                <div class="d-flex flex-wrap gap-2 mt-2">
-                    <span class="badge badge-custom">Python</span>
-                    <span class="badge badge-custom">Django</span>
-                    <span class="badge badge-custom">JavaScript</span>
-                    <span class="badge badge-custom">React</span>
-                    <span class="badge badge-custom">Bootstrap</span>
-                </div>
-            </div>
-
-            <div class="sidebar-card">
-                <h6><i class="fas fa-users me-2"></i> Seguidores Recentes</h6>
-                <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
-                    <div class="d-flex gap-2 align-items-center">
-                        <div class="text-avatar-small" style="width: 40px; height: 40px; font-size: 1rem;">
-                            A
-                        </div>
-                        <div>
-                            <div><strong>Ana Costa</strong></div>
-                            <div class="small text-muted">@anacosta</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill">Seguir</button>
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex gap-2 align-items-center">
-                        <div class="text-avatar-small" style="width: 40px; height: 40px; font-size: 1rem;">
-                            C
-                        </div>
-                        <div>
-                            <div><strong>Carlos Mendes</strong></div>
-                            <div class="small text-muted">@carlosmendes</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill">Seguir</button>
-                </div>
             </div>
 
             <div class="sidebar-card">
@@ -427,5 +404,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'accounts/js/profile.js' %}"></script>
 </body>
 </html>
