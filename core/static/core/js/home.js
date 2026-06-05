@@ -99,6 +99,59 @@ document.querySelectorAll('.like-btn').forEach(button => {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
+    const favoriteButtons = document.querySelectorAll(".favorite-btn");
+
+    favoriteButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            const projectId = this.getAttribute("data-project-id");
+            const url = this.getAttribute("data-url");
+            const icon = this.querySelector("i");
+            
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+            if (!csrfToken) {
+                console.error("CSRF Token não encontrado na página.");
+                return;
+            }
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrfToken,
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => {
+                if (response.status === 402 || response.redirected || response.url.includes('login')) {
+                    window.location.href = "/accounts/login/"; 
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.favorited !== undefined) {
+                    if (data.favorited) {
+                        icon.classList.remove("far");
+                        icon.classList.add("fas");
+                        this.classList.remove("text-muted");
+                        this.classList.add("text-warning");
+                    } else {
+                        icon.classList.remove("fas");
+                        icon.classList.add("far");
+                        this.classList.remove("text-warning");
+                        this.classList.add("text-muted");
+                    }
+                }
+            })
+            .catch(error => {
+                console.error("Erro ao processar o favorito:", error);
+            });
+        });
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
     const reportModalEl = document.getElementById('reportModal');
     if (!reportModalEl) return;
     

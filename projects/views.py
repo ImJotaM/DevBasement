@@ -21,6 +21,8 @@ def project_detail_view(request, username, slug):
     if request.user.is_authenticated:
         user_liked = ProjectLike.objects.filter(user=request.user, project=project).exists()
 
+    user_favorited = project.favorites.filter(id=request.user.id).exists() if request.user.is_authenticated else False
+
     sections = project.sections.all()
     comments = project.comments.all().order_by('-created_at')
 
@@ -30,6 +32,7 @@ def project_detail_view(request, username, slug):
         'comments': comments,
         'is_owner': request.user == project.owner,
         'user_liked': user_liked,
+        'user_favorited': user_favorited,
         'all_technologies': Technology.objects.all(),
     }
     
@@ -151,6 +154,22 @@ def like_project(request, username, slug):
         })
         
     return JsonResponse({'error': 'Método inválido'}, status=400)
+
+@login_required
+def favorite_project(request, username, slug):
+    if request.method == "POST":
+        project = get_object_or_404(Project, owner__username=username, slug=slug)
+        user = request.user
+        
+        if user in project.favorites.all():
+            project.favorites.remove(user)
+            favorited = False
+        else:
+            project.favorites.add(user)
+            favorited = True
+            
+        return JsonResponse({"favorited": favorited})
+    return JsonResponse({"error": "Método inválido"}, status=400)
 
 @login_required
 def add_comment(request, username, slug):

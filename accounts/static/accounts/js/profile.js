@@ -58,8 +58,7 @@ document.querySelectorAll('.like-btn').forEach(button => {
     button.addEventListener('click', function() {
         const url = this.getAttribute('data-url');
         const csrftoken = getCookie('csrftoken');
-        const icon = this.querySelector('i');
-        const countSpan = this.querySelector('.likes-count');
+        const projectId = this.getAttribute('data-project-id');
 
         if (!url) return;
 
@@ -77,16 +76,69 @@ document.querySelectorAll('.like-btn').forEach(button => {
             return response.json();
         })
         .then(data => {
-            if (data.liked) {
-                this.classList.add('text-danger');
-                icon.className = 'fas fa-heart text-danger';
-            } else {
-                this.classList.remove('text-danger');
-                icon.className = 'far fa-heart';
+            document.querySelectorAll(`.like-btn[data-project-id="${projectId}"]`).forEach(btn => {
+                const icon = btn.querySelector('i');
+                const countSpan = btn.querySelector('.likes-count');
+
+                if (data.liked) {
+                    btn.classList.add('text-danger');
+                    if (icon) icon.className = 'fas fa-heart text-danger';
+                } else {
+                    btn.classList.remove('text-danger');
+                    if (icon) icon.className = 'far fa-heart';
+                }
+                
+                if (countSpan && data.likes_count !== undefined) {
+                    countSpan.textContent = data.likes_count;
+                }
+            });
+        })
+        .catch(err => {
+            alert(err.message || 'Houve um erro ao processar a ação.');
+        });
+    });
+});
+
+document.querySelectorAll('.favorite-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const url = this.getAttribute('data-url');
+        const csrftoken = getCookie('csrftoken');
+        const projectId = this.getAttribute('data-project-id');
+
+        if (!url) return;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'
             }
-            
-            if (countSpan && data.likes_count !== undefined) {
-                countSpan.textContent = data.likes_count;
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.error || 'Erro na requisição'); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.favorited !== undefined) {
+                document.querySelectorAll(`.favorite-btn[data-project-id="${projectId}"]`).forEach(btn => {
+                    const icon = btn.querySelector('i');
+                    
+                    if (data.favorited) {
+                        btn.classList.remove('text-muted');
+                        btn.classList.add('text-warning');
+                        if (icon) {
+                            icon.className = 'fas fa-star';
+                        }
+                    } else {
+                        btn.classList.remove('text-warning');
+                        btn.classList.add('text-muted');
+                        if (icon) {
+                            icon.className = 'far fa-star';
+                        }
+                    }
+                });
             }
         })
         .catch(err => {

@@ -38,6 +38,7 @@ class Project(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='planning')
     technologies = models.ManyToManyField(Technology, related_name='projects', blank=True)
+    favorites = models.ManyToManyField(User, related_name='favorite_projects', blank=True)
 
     class Meta:
         unique_together = ('owner', 'slug')

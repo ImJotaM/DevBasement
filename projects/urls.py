@@ -10,6 +10,7 @@ urlpatterns = [
     path('section/<int:section_id>/answer/', views.answer_section, name='answer_section'),
     
     path('<str:username>/<slug:slug>/like/', views.like_project, name='like_project'),
+    path('<str:username>/<slug:slug>/favorite/', views.favorite_project, name='favorite_project'),
     path('<str:username>/<slug:slug>/comment/', views.add_comment, name='add_comment'),
     path('<str:username>/<slug:slug>/update/', views.update_project_field, name='update_project_field'),
     path('<str:username>/<slug:slug>/section/create/', views.create_section, name='create_section'),

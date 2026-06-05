@@ -30,6 +30,12 @@ def home(request):
             ProjectLike.objects.filter(user=request.user).values_list('project_id', flat=True)
         )
 
+    user_favorited_project_ids = set()
+    if request.user.is_authenticated:
+        user_favorited_project_ids = set(
+            request.user.favorite_projects.values_list('id', flat=True)
+        )
+
     trending_technologies = (
         Technology.objects.annotate(num_projects=Count('projects'))
         .filter(num_projects__gt=0)
@@ -41,6 +47,7 @@ def home(request):
         'recommended_users': recommended_users,
         'trending_technologies': trending_technologies,
         'user_liked_project_ids': user_liked_project_ids,
+        'user_favorited_project_ids': user_favorited_project_ids,
     }
     
     return render(request, 'core/home.html', context)

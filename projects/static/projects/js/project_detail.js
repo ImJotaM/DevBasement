@@ -162,6 +162,112 @@ function editTitle() {
     });
 }
 
+document.querySelectorAll('.like-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const csrftoken = getCookie('csrftoken');
+        const icon = this.querySelector('i');
+        const countSpan = this.querySelector('.likes-count');
+
+        if (!csrftoken) {
+            window.location.href = '/accounts/login/';
+            return;
+        }
+
+        const url = this.getAttribute('data-url');
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.status === 403 || response.status === 401) {
+                window.location.href = '/accounts/login/';
+                return;
+            }
+            if (!response.ok) {
+                throw new Error(`Erro na requisição. Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data) {
+                if (countSpan && data.likes_count !== undefined) {
+                    countSpan.textContent = data.likes_count;
+                }
+
+                if (data.liked) {
+                    this.classList.remove('btn-outline-danger');
+                    this.classList.add('btn-danger', 'text-white');
+                    icon.className = 'fas fa-heart me-2';
+                } else {
+                    this.classList.remove('btn-danger', 'text-white');
+                    this.classList.add('btn-outline-danger');
+                    icon.className = 'far fa-heart me-2';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao curtir o projeto:', error);
+        });
+    });
+});
+
+document.querySelectorAll('.favorite-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const csrftoken = getCookie('csrftoken');
+        const icon = this.querySelector('i');
+        const textSpan = this.querySelector('.favorite-text');
+
+        if (!csrftoken) {
+            window.location.href = '/accounts/login/';
+            return;
+        }
+
+        const url = this.getAttribute('data-url');
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.status === 403 || response.status === 401) {
+                window.location.href = '/accounts/login/';
+                return;
+            }
+            if (!response.ok) {
+                throw new Error(`Erro na requisição. Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.favorited !== undefined) {
+                if (data.favorited) {
+                    this.classList.remove('btn-outline-warning');
+                    this.classList.add('btn-warning', 'text-white');
+                    icon.className = 'fas fa-star me-2';
+                    if (textSpan) textSpan.textContent = 'Favoritado';
+                } else {
+                    this.classList.remove('btn-warning', 'text-white');
+                    this.classList.add('btn-outline-warning');
+                    icon.className = 'far fa-star me-2';
+                    if (textSpan) textSpan.textContent = 'Favoritar';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao favoritar o projeto:', error);
+        });
+    });
+});
+
 function addNewSection() {
     newSectionCounter++;
     const tempId = `temp-${Date.now()}-${newSectionCounter}`;

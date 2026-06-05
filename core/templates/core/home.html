@@ -178,6 +178,12 @@
                                     <i class="far fa-comment"></i> <span>{{ project.comments.count }}</span>
                                 </a>
                             </div>
+                            <div class="interaction-btn favorite-btn {% if project.id in user_favorited_project_ids %}text-warning{% else %}text-muted{% endif %}" 
+                                data-project-id="{{ project.id }}" 
+                                data-url="{% url 'favorite_project' project.owner.username project.slug %}"
+                                style="cursor: pointer;">
+                                <i class="{% if project.id in user_favorited_project_ids %}fas{% else %}far{% endif %} fa-start"></i>
+                            </div>
                         </div>
                     </div>
                 </div>

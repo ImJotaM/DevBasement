@@ -84,9 +84,16 @@ def profile_view(request, username=None):
         profile_user = request.user
     
     user_projects = Project.objects.filter(owner=profile_user).order_by('-created_at')
+    user_favorited_project_ids = set()
+    if request.user.is_authenticated:
+        user_favorited_project_ids = set(
+            request.user.favorite_projects.values_list('id', flat=True)
+        )
 
     liked_entries = ProjectLike.objects.filter(user=profile_user).select_related('project', 'project__owner').order_by('-created_at')
     liked_projects = [entry.project for entry in liked_entries]
+
+    favorited_projects = profile_user.favorite_projects.all().order_by('-created_at')
 
     user_profile = profile_user.profile
     followers_count = user_profile.followers.count()
@@ -105,6 +112,8 @@ def profile_view(request, username=None):
         'projects': user_projects,
         'projects_count': user_projects.count(),
         'liked_projects': liked_projects,
+        'favorited_projects': favorited_projects,
+        'user_favorited_project_ids': user_favorited_project_ids,
         'followers_count': followers_count,       
         'following_count': following_count,
         'total_likes': total_likes,

@@ -15,7 +15,13 @@ class Profile(models.Model):
     bio = models.TextField(max_length=500, blank=True, help_text="A short bio about the developer.")
     github_url = models.URLField(max_length=200, blank=True)
     website = models.URLField(max_length=200, blank=True)
-    
+
+    favorites = models.ManyToManyField(
+        'projects.Project',
+        blank=True,
+        related_name='favorited_by'
+    )
+
     following = models.ManyToManyField(
         'self', 
         blank=True, 
