@@ -4,12 +4,25 @@ from projects.models import Project, ProjectLike, Technology
 from accounts.models import User
 
 def home(request):
-    projects = Project.objects.filter(is_private=False).order_by('-created_at')
+    projects = (Project.objects
+                .filter(is_private=False)
+                .exclude(owner__is_staff=True)
+                .exclude(owner__is_superuser=True)
+                .order_by('-created_at'))
     
-    recommended_users = User.objects.all().order_by('-date_joined')
     if request.user.is_authenticated:
-        recommended_users = recommended_users.exclude(id=request.user.id)
-    recommended_users = recommended_users[:4]
+        recommended_users = (
+            User.objects.exclude(id=request.user.id)
+            .exclude(is_staff=True)
+            .exclude(is_superuser=True)
+            .order_by('-date_joined')[:5]
+        )
+    else:
+        recommended_users = (
+            User.objects.exclude(is_staff=True)
+            .exclude(is_superuser=True)
+            .order_by('-date_joined')[:5]
+        )
     
     user_liked_project_ids = set()
     if request.user.is_authenticated:
