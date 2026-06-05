@@ -20,7 +20,7 @@ document.querySelectorAll('.follow-btn').forEach(button => {
         const followersCounter = document.getElementById('followers-count-val');
         
         if (!username) return;
-        const url = `/accounts/follow/${username}/`;
+        const url = `/${username}/follow/`;
 
         fetch(url, {
             method: 'POST',

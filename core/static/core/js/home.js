@@ -18,7 +18,7 @@ document.querySelectorAll('.follow-btn').forEach(button => {
         const username = this.getAttribute('data-username');
         const csrftoken = getCookie('csrftoken');
         
-        const url = `/accounts/follow/${username}/`; 
+        const url = `/${username}/follow/`; 
         
         fetch(url, {
             method: 'POST',
