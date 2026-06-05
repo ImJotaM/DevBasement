@@ -1,0 +1,23 @@
+body {
+    background-color: #f0f2f5;
+}
+
+.edit-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 30px;
+    padding: 10px 30px;
+    font-weight: bold;
+    color: white;
+}
+
+.btn-save:hover {
+    color: white;
+}
