@@ -25,7 +25,13 @@ def login_view(request):
                     user_obj = User.objects.get(email=login_input)
                     username_to_auth = user_obj.username
                 except User.DoesNotExist:
-                    username_to_auth = None 
+                    username_to_auth = login_input 
+            else:
+                try:
+                    user_obj = User.objects.get(username__iexact=login_input)
+                    username_to_auth = user_obj.username
+                except User.DoesNotExist:
+                    username_to_auth = login_input
 
             user = authenticate(request, username=username_to_auth, password=password)
 

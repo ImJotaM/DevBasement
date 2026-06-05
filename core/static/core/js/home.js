@@ -98,3 +98,89 @@ document.querySelectorAll('.like-btn').forEach(button => {
         });
     });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const reportModalEl = document.getElementById('reportModal');
+    if (!reportModalEl) return;
+    
+    const reportModal = new bootstrap.Modal(reportModalEl);
+    
+    const reportButtons = document.querySelectorAll('.btn-report');
+    const modalProjectId = document.getElementById('modalProjectId');
+    const modalProjectTitle = document.getElementById('modalProjectTitle');
+    const reportForm = document.getElementById('reportForm');
+    const modalErrorMessage = document.getElementById('modalErrorMessage');
+    const btnAdminDelete = document.getElementById('btnAdminDelete');
+
+    reportButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const projectId = this.getAttribute('data-project-id');
+            const projectTitle = this.getAttribute('data-project-title');
+            
+            reportForm.reset();
+            modalErrorMessage.classList.add('d-none');
+            modalErrorMessage.textContent = '';
+            
+            modalProjectId.value = projectId;
+            modalProjectTitle.textContent = projectTitle;
+            
+            reportModal.show();
+        });
+    });
+
+    reportForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        
+        const projectId = modalProjectId.value;
+        const formData = new FormData(reportForm);
+        formData.append('action', 'report');
+
+        sendReportForModeration(projectId, formData);
+    });
+
+    if (btnAdminDelete) {
+        btnAdminDelete.addEventListener('click', function () {
+            if (confirm("Tem certeza absoluta de que deseja excluir permanentemente este projeto da plataforma?")) {
+                const projectId = modalProjectId.value;
+                const csrfToken = reportForm.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                const formData = new FormData();
+                formData.append('csrfmiddlewaretoken', csrfToken);
+                formData.append('action', 'delete');
+                
+                sendReportForModeration(projectId, formData);
+            }
+        });
+    }
+
+    function sendReportForModeration(projectId, formData) {
+        modalErrorMessage.classList.add('d-none');
+        
+        fetch(`/projects/${projectId}/report/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json().then(data => ({ status: response.status, body: data })))
+        .then(res => {
+            if (res.status === 200) {
+                alert(res.body.message);
+                reportModal.hide();
+                
+                if (res.body.status === 'deleted') {
+                    window.location.reload();
+                }
+            } else {
+                modalErrorMessage.textContent = res.body.error || 'Ocorreu um erro inesperado.';
+                modalErrorMessage.classList.remove('d-none');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            modalErrorMessage.textContent = 'Erro ao processar a requisição no servidor.';
+            modalErrorMessage.classList.remove('d-none');
+        });
+    }
+});

@@ -1,7 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from .models import Project, ProjectLike, Comment, ProjectSection
 from .forms import ProjectForm
+from moderation.models import Report
 from django.http import JsonResponse
 from django.core.exceptions import PermissionDenied
 
@@ -171,3 +173,31 @@ def update_project_field(request, project_id):
             project.save()
     
     return redirect('project_detail', project_id=project_id)
+
+@login_required
+@require_POST
+def report_project(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    action = request.POST.get('action')
+
+    if action == 'delete' and request.user.is_staff:
+        project.delete()
+        return JsonResponse({'status': 'deleted', 'message': 'O projeto foi excluído permanentemente.'})
+
+    reason = request.POST.get('reason')
+    description = request.POST.get('description', '')
+
+    if not reason:
+        return JsonResponse({'error': 'Você precisa selecionar um motivo.'}, status=400)
+
+    if Report.objects.filter(project=project, user=request.user).exists():
+        return JsonResponse({'error': 'Você já enviou um report para este projeto.'}, status=400)
+
+    Report.objects.create(
+        project=project,
+        user=request.user,
+        reason=reason,
+        description=description
+    )
+
+    return JsonResponse({'status': 'reported', 'message': 'Seu report foi enviado com sucesso e será analisado.'})

@@ -193,6 +193,11 @@
                             <i class="fas fa-external-link-alt me-2"></i> Ver Demo
                         </a>
                     {% endif %}
+                    {% if user.is_authenticated and user != project.owner %}
+                        <a href="{% url 'report_project' project.id %}" class="btn btn-outline-danger rounded-pill mt-1">
+                            <i class="fas fa-flag me-2"></i> Reportar Projeto
+                        </a>
+                    {% endif %}
                 </div>
             </div>
 
