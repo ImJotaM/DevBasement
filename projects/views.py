@@ -3,9 +3,14 @@ from django.contrib.auth.decorators import login_required
 from .models import Project, ProjectLike, Comment, ProjectSection
 from .forms import ProjectForm
 from django.http import JsonResponse
+from django.core.exceptions import PermissionDenied
 
 def project_detail_view(request, project_id):
     project = get_object_or_404(Project, id=project_id)
+    
+    if project.is_private and request.user != project.owner:
+        raise PermissionDenied("Este projeto é privado.")
+
     user_liked = False
     
     if request.user.is_authenticated:
@@ -26,6 +31,7 @@ def create_project_view(request):
             project = Project.objects.create(
                 title=form.cleaned_data['title'],
                 description=form.cleaned_data['description'],
+                is_private=form.cleaned_data['is_private'],
                 owner=request.user
             )
             
@@ -43,7 +49,6 @@ def create_project_view(request):
     context = {
         'form': form,
     }
-
     return render(request, 'projects/create_project.html', context)
 
 @login_required

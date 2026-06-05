@@ -98,6 +98,14 @@
                             {% endfor %}
                         </div>
 
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-muted small">Visibilidade do Projeto</label>
+                            {{ form.is_private }}
+                            {% for error in form.is_private.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-save">
                                 <i class="fas fa-check-circle me-2"></i> Criar Projeto Agora

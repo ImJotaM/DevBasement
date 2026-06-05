@@ -17,7 +17,8 @@ class Project(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='planning')
     repo_url = models.URLField(blank=True, null=True)
     demo_url = models.URLField(blank=True, null=True)
-    
+    is_private = models.BooleanField(default=False)
+
     @property
     def likes_count(self):
         return self.likes.count()
