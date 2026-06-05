@@ -182,7 +182,7 @@
                                 data-project-id="{{ project.id }}" 
                                 data-url="{% url 'favorite_project' project.owner.username project.slug %}"
                                 style="cursor: pointer;">
-                                <i class="{% if project.id in user_favorited_project_ids %}fas{% else %}far{% endif %} fa-start"></i>
+                                <i class="{% if project.id in user_favorited_project_ids %}fas{% else %}far{% endif %} fa-star"></i>
                             </div>
                         </div>
                     </div>
