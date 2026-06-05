@@ -1,0 +1,52 @@
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="reportModalLabel">Reportar Projeto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form id="reportForm">
+                {% csrf_token %}
+                <input type="hidden" id="modalProjectId" name="project_id">
+                
+                <div class="modal-body">
+                    <p class="text-muted small">Você está reportando o projeto: <strong id="modalProjectTitle" class="text-dark"></strong></p>
+                
+                    <div class="mb-3">
+                        <label for="reportReason" class="form-label fw-bold small">Selecione o Motivo:</label>
+                        <select class="form-select" id="reportReason" name="reason" required>
+                            <option value="" selected disabled>Escolha uma opção...</option>
+                            <option value="spam">Spam / Conteúdo Comercial</option>
+                            <option value="inappropriate">Conteúdo Inapropriado / Ofensivo</option>
+                            <option value="copyright">Violação de Direitos Autorais</option>
+                            <option value="other">Outro Motivo</option>
+                        </select>
+                    </div>
+                
+                    <div class="mb-3">
+                        <label for="reportDescription" class="form-label fw-bold small">Detalhes adicionais (Opcional):</label>
+                        <textarea class="form-control" id="reportDescription" name="description" rows="3" placeholder="Nos dê mais detalhes sobre a infração..."></textarea>
+                    </div>
+
+                    <div id="modalErrorMessage" class="alert alert-danger d-none py-2 small"></div>
+                </div>
+            
+                <div class="modal-footer d-flex justify-content-between">
+                    <div>
+                    {% if user.is_authenticated and user.is_staff %}
+                        <button type="button" id="btnAdminDelete" class="btn btn-danger fw-bold btn-sm">
+                            <i class="fas fa-trash-alt me-1"></i> Excluir Post
+                        </button>
+                    {% endif %}
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-light border btn-sm fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" id="btnSubmitReport" class="btn btn-dark btn-sm fw-bold">Enviar Report</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,107 @@
+<div class="project-card">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div class="d-flex gap-2 align-items-center">
+            <a href="{% url 'profile_detail' project.owner.username %}" class="text-decoration-none text-white">
+                <div class="text-avatar-small">
+                    {{ project.owner.username|make_list|first|upper }}
+                </div>
+            </a>
+            <div>
+                <strong>
+                    <a href="{% url 'profile_detail' project.owner.username %}" class="text-decoration-none text-dark">
+                        {{ project.owner.get_full_name|default:project.owner.username }}
+                    </a>
+                </strong>
+                <span class="text-muted small d-block">@{{ project.owner.username }} · {{ project.created_at|timesince }} atrás</span>
+            </div>
+        </div>
+        
+        <div class="d-flex align-items-center gap-2">
+            {% if project.status == 'completed' %}
+                <span class="badge bg-success rounded-pill">Concluído</span>
+            {% elif project.status == 'in_progress' %}
+                <span class="badge bg-primary rounded-pill">Em Desenvolvimento</span>
+            {% else %}
+                <span class="badge bg-secondary rounded-pill">Planejamento</span>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+                <button type="button" 
+                        class="btn btn-link text-dark p-0 border-0 btn-report" 
+                        data-project-id="{{ project.id }}" 
+                        data-project-username="{{ project.owner.username }}"
+                        data-project-slug="{{ project.slug }}"
+                        data-project-title="{{ project.title }}"
+                        style="font-size: 0.8rem; text-decoration: none;">
+                    <i class="bi bi-flag"></i>
+                </button>
+            {% else %}
+                <a href="{% url 'login' %}" class="text-muted" style="font-size: 1.15rem;"><i class="bi bi-flag"></i></a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <div class="d-flex align-items-center mb-2">
+            <h4 class="mb-0">
+                <a href="{% url 'project_detail' project.owner.username project.slug %}" class="text-decoration-none text-dark">
+                    {{ project.title }}
+                </a>
+            </h4>
+            {% if project.is_private %}
+                <span class="badge bg-dark ms-2"><i class="fas fa-lock me-1"></i> Privado</span>
+            {% endif %}
+        </div>
+
+        <p class="text-dark">{{ project.description|truncatewords:30 }}</p>
+        
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            {% if project.repo_url %}
+                <span class="badge item-badge"><i class="fab fa-github"></i> Repositório</span>
+            {% endif %}
+            
+            {% if project.sections.count > 0 %}
+                <span class="badge item-badge">
+                    <i class="fas fa-file-code"></i> {{ project.sections.count }} Seções
+                </span>
+            {% endif %}
+
+            {% if project.questions_count > 0 %}
+                <span class="badge item-badge">
+                    <i class="fas fa-question-circle"></i> {{ project.questions_count }} Perguntas
+                </span>
+            {% endif %}
+
+            {% if project.references_count > 0 %}
+                <span class="badge item-badge">
+                    <i class="fas fa-link"></i> {{ project.references_count }} Referências
+                </span>
+            {% endif %}
+        </div>  
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+        <div class="d-flex gap-4">
+            <div class="interaction-btn like-btn {% if project.id in user_liked_project_ids %}text-danger{% endif %}" 
+                 data-project-id="{{ project.id }}" 
+                 data-url="{% url 'like_project' project.owner.username project.slug %}">
+                <i class="{% if project.id in user_liked_project_ids %}fas{% else %}far{% endif %} fa-heart"></i> 
+                <span class="likes-count">{{ project.likes_count }}</span>
+            </div>
+            <div class="interaction-btn comment-btn">
+                <a href="{% url 'project_detail' project.owner.username project.slug %}" class="text-decoration-none text-muted">
+                    <i class="far fa-comment"></i> <span>{{ project.comments.count }}</span>
+                </a>
+            </div>
+            <div class="interaction-btn favorite-btn {% if project.id in user_favorited_project_ids %}text-warning{% else %}text-muted{% endif %}" 
+                data-project-id="{{ project.id }}" 
+                data-url="{% url 'favorite_project' project.owner.username project.slug %}"
+                style="cursor: pointer;">
+                <i class="{% if project.id in user_favorited_project_ids %}fas{% else %}far{% endif %} fa-star"></i>
+            </div>
+        </div>
+        <a href="{% url 'project_detail' project.owner.username project.slug %}" class="btn btn-sm btn-outline-primary rounded-pill">
+            Ver detalhes <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+    </div>
+</div>
