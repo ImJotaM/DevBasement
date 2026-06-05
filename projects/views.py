@@ -8,10 +8,14 @@ from moderation.models import Report
 from django.http import JsonResponse, Http404
 
 def project_detail_view(request, username, slug):
-    project = get_object_or_404(Project, owner__username=username, slug=slug)
-    
-    if project.is_private and request.user != project.owner:
-        raise Http404("Este projeto é privado ou não existe.")
+    try:
+        project = Project.objects.get(owner__username=username, slug=slug)
+        
+        if project.is_private and request.user != project.owner:
+            return render(request, 'projects/project_not_found.html', {'reason': 'private'}, status=404)
+            
+    except Project.DoesNotExist:
+        return render(request, 'projects/project_not_found.html', {'reason': 'not_found'}, status=404)
 
     user_liked = False
     if request.user.is_authenticated:
