@@ -15,5 +15,7 @@ urlpatterns = [
     path('<str:username>/<slug:slug>/section/create/', views.create_section, name='create_section'),
     path('<str:username>/<slug:slug>/report/', views.report_project, name='report_project'),
     
+    path('<str:username>/<slug:slug>/technologies/update/', views.update_project_technologies, name='update_project_technologies'),
+
     path('<str:username>/<slug:slug>/', views.project_detail_view, name='project_detail'),
 ]

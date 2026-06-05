@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from projects.models import Project, ProjectLike
+from django.db.models import Count
+from projects.models import Project, ProjectLike, Technology
 from accounts.models import User
 
 def home(request):
@@ -16,9 +17,16 @@ def home(request):
             ProjectLike.objects.filter(user=request.user).values_list('project_id', flat=True)
         )
 
+    trending_technologies = (
+        Technology.objects.annotate(num_projects=Count('projects'))
+        .filter(num_projects__gt=0)
+        .order_by('-num_projects')[:5]
+    )
+
     context = {
         'projects': projects,
         'recommended_users': recommended_users,
+        'trending_technologies': trending_technologies,
         'user_liked_project_ids': user_liked_project_ids,
     }
     

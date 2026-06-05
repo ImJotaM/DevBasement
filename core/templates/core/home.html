@@ -63,21 +63,21 @@
 
             <div class="sidebar-card">
                 <h6>Tecnologias em Alta</h6>
-                <div class="mb-2">
-                    <div class="trending-topic small">Front-end</div>
-                    <div class="trending-tag">#ReactJS</div>
-                    <small class="text-muted">2.345 projetos</small>
-                </div>
-                <div class="mb-2">
-                    <div class="trending-topic small">Back-end</div>
-                    <div class="trending-tag">#Django</div>
-                    <small class="text-muted">1.892 projetos</small>
-                </div>
-                <div>
-                    <div class="trending-topic small">DevOps</div>
-                    <div class="trending-tag">#Docker</div>
-                    <small class="text-muted">987 projetos</small>
-                </div>
+                {% for tech in trending_technologies %}
+                    <div class="{% if not forloop.last %}mb-3{% endif %}">
+                        <div class="trending-topic small text-muted">Tecnologia #{{ forloop.counter }}</div>
+                        
+                        <div class="trending-tag fw-bold text-primary">
+                            #{{ tech.name }}
+                        </div>
+                        
+                        <small class="text-muted">
+                            {{ tech.num_projects }} projeto{{ tech.num_projects|pluralize }}
+                        </small>
+                    </div>
+                {% empty %}
+                    <p class="text-muted small mb-0">Nenhuma tecnologia em uso no momento.</p>
+                {% endfor %}
             </div>
         </div>
 

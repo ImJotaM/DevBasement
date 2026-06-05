@@ -2,7 +2,7 @@ import re
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from .models import Project, ProjectLike, Comment, ProjectSection, SectionAnswer
+from .models import Project, ProjectLike, Comment, ProjectSection, SectionAnswer, Technology
 from .forms import ProjectForm
 from moderation.models import Report
 from django.http import JsonResponse, Http404
@@ -26,6 +26,7 @@ def project_detail_view(request, username, slug):
         'comments': comments,
         'is_owner': request.user == project.owner,
         'user_liked': user_liked,
+        'all_technologies': Technology.objects.all(),
     }
     
     return render(request, 'projects/project_detail.html', context)
@@ -203,3 +204,16 @@ def report_project(request, username, slug):
     )
 
     return JsonResponse({'status': 'reported', 'message': 'Seu report foi enviado com sucesso e será analisado.'})
+
+@login_required
+def update_project_technologies(request, username, slug):
+    project = get_object_or_404(Project, owner__username=username, slug=slug)
+    
+    if request.user != project.owner:
+        return redirect('project_detail', username=username, slug=slug)
+        
+    if request.method == 'POST':
+        tech_ids = request.POST.getlist('technologies')
+        project.technologies.set(tech_ids)
+        
+    return redirect('project_detail', username=username, slug=slug)

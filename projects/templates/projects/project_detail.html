@@ -206,10 +206,30 @@
                     <i class="fas fa-info-circle me-2" style="color: #667eea"></i>
                     Informações
                 </h6>
-                
+
                 <div class="mb-4 pb-3 border-bottom">
                     <small class="text-muted d-block mb-1">Sobre o Projeto</small>
                     <p class="mb-0 text-dark small style-description" style="white-space: pre-line; line-height: 1.5;">{{ project.description }}</p>
+                </div>
+
+                <div class="mb-4 pb-3 border-bottom">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">Tecnologias Utilizadas</small>
+                        {% if user == project.owner %}
+                            <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 fw-medium" data-bs-toggle="modal" data-bs-target="#techModal">
+                                <i class="fas fa-plus me-1" style="font-size: 0.75rem;"></i>Gerenciar
+                            </button>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex flex-wrap gap-1">
+                        {% for tech in project.technologies.all %}
+                            <span class="badge bg-light text-dark border border-secondary-subtle px-2 py-1.5 rounded-2 small fw-medium">
+                                <i class="fas fa-tag text-secondary me-1" style="font-size: 0.75rem;"></i>{{ tech.name }}
+                            </span>
+                        {% empty %}
+                            <p class="mb-0 text-muted small italic">Nenhuma tecnologia adicionada.</p>
+                        {% endfor %}
+                    </div>
                 </div>
 
                 <div class="mb-2">
@@ -250,6 +270,52 @@
         </div>
     </div>
 </div>
+
+{% if user == project.owner %}
+<div class="modal fade" id="techModal" tabindex="-1" aria-labelledby="techModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-white border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark" id="techModalLabel">
+                    <i class="fas fa-tags me-2 text-primary"></i>Tecnologias do Projeto
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'update_project_technologies' project.owner.username project.slug %}">
+                {% csrf_token %}
+                <div class="modal-body" style="max-height: 380px; overflow-y: auto;">
+                    <p class="text-muted small mb-3">Selecione as ferramentas e tecnologias utilizadas na construção deste projeto:</p>
+                    
+                    <div class="row g-2">
+                        {% for tech in all_technologies %}
+                            <div class="col-6">
+                                <div class="card h-100 border-secondary-subtle px-3 py-2 position-relative" style="cursor: pointer; transition: background-color 0.2s;">
+                                    <div class="form-check m-0 d-flex align-items-center">
+                                        <input class="form-check-input mt-0 me-2" type="checkbox" name="technologies" value="{{ tech.id }}" id="tech-{{ tech.id }}"
+                                            {% if tech in project.technologies.all %}checked{% endif %}>
+                                        <label class="form-check-label fw-medium text-dark stretched-link ps-1 text-truncate" for="tech-{{ tech.id }}">
+                                            {{ tech.name }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="col-12 text-center text-muted py-3">
+                                <p class="mb-0 small">Nenhuma tecnologia disponível.</p>
+                                <small class="text-black-50">Cadastre opções através do painel /admin do Django.</small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top-0 py-2">
+                    <button type="button" class="btn btn-sm btn-secondary rounded-pill px-3" data-bs-toggle="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-sm btn-primary rounded-pill px-4">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"></script>
