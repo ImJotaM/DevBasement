@@ -28,11 +28,23 @@ def create_project_view(request):
                 description=form.cleaned_data['description'],
                 owner=request.user
             )
+            
+            ProjectSection.objects.create(
+                project=project,
+                title="Descrição do Projeto",
+                content=form.cleaned_data['description'],
+                is_pinned=True,
+            )
+            
             return redirect('project_detail', project_id=project.id)
     else:
         form = ProjectForm()
     
-    return render(request, 'projects/create_project.html', {'form': form})
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'projects/create_project.html', context)
 
 @login_required
 def create_section(request, project_id):

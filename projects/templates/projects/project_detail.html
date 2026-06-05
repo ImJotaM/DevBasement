@@ -201,6 +201,12 @@
                     <i class="fas fa-info-circle me-2" style="color: #667eea"></i>
                     Informações
                 </h6>
+                
+                <div class="mb-4 pb-3 border-bottom">
+                    <small class="text-muted d-block mb-1">Sobre o Projeto</small>
+                    <p class="mb-0 text-dark small style-description" style="white-space: pre-line; line-height: 1.5;">{{ project.description }}</p>
+                </div>
+
                 <div class="mb-2">
                     <small class="text-muted d-block">Criado em</small>
                     <strong>{{ project.created_at|date:"d/m/Y H:i" }}</strong>
