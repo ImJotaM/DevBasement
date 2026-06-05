@@ -3,7 +3,7 @@ from projects.models import Project, ProjectLike
 from accounts.models import User
 
 def home(request):
-    projects = Project.objects.all().order_by('-created_at')
+    projects = Project.objects.filter(is_private=False).order_by('-created_at')
     
     recommended_users = User.objects.all().order_by('-date_joined')
     if request.user.is_authenticated:
