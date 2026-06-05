@@ -23,3 +23,12 @@ def home(request):
     }
     
     return render(request, 'core/home.html', context)
+
+def about_view(request):
+    return render(request, 'extras/about.html')
+
+def terms_view(request):
+    return render(request, 'extras/terms.html')
+
+def guidelines_view(request):
+    return render(request, 'extras/guidelines.html')
