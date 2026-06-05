@@ -62,16 +62,104 @@ function toggleEdit(sectionId) {
     }
 }
 
-function editTitle() {
-    const titleValueInput = document.getElementById('title-value');
-    if (!titleValueInput) return;
+function editDescription() {
+    const descDisplay = document.getElementById('project-description-display');
+    const container = document.getElementById('project-description-container');
+    const editBtn = document.getElementById('edit-desc-btn');
+    
+    if (!descDisplay || !container) return;
+    
+    const currentDesc = descDisplay.innerText;
 
-    const currentTitle = titleValueInput.value;
-    const newTitle = prompt('Editar título do projeto:', currentTitle);
-    if (newTitle && newTitle.trim() !== "" && newTitle !== currentTitle) {
-        titleValueInput.value = newTitle.trim();
-        titleValueInput.closest('form').submit();
+    if (editBtn) editBtn.style.display = 'none';
+
+    const textarea = document.createElement('textarea');
+    textarea.className = 'form-control form-control-sm small mb-2';
+    textarea.rows = 5;
+    textarea.value = currentDesc;
+    textarea.style.lineHeight = '1.5';
+    textarea.style.fontSize = '0.875rem';
+
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'd-flex gap-1 justify-content-end';
+    actionsDiv.innerHTML = `
+        <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" id="save-desc-btn" style="font-size: 0.75rem;">Salvar</button>
+        <button type="button" class="btn btn-sm btn-secondary rounded-pill px-2" id="cancel-desc-btn" style="font-size: 0.75rem;">Cancelar</button>
+    `;
+
+    function cancelEditing() {
+        container.innerHTML = '';
+        container.appendChild(descDisplay);
+        if (editBtn) editBtn.style.display = 'inline-block';
     }
+
+    function submitNewDescription() {
+        const newValue = textarea.value.trim();
+        if (newValue !== currentDesc) {
+            const hiddenTextarea = document.getElementById('description-value');
+            hiddenTextarea.value = newValue;
+            hiddenTextarea.form.submit();
+        } else {
+            cancelEditing();
+        }
+    }
+
+    container.innerHTML = '';
+    container.appendChild(textarea);
+    container.appendChild(actionsDiv);
+    
+    textarea.focus();
+
+    document.getElementById('save-desc-btn').addEventListener('click', submitNewDescription);
+    document.getElementById('cancel-desc-btn').addEventListener('click', cancelEditing);
+
+    textarea.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            cancelEditing();
+        }
+    });
+}
+
+function editTitle() {
+    const titleHeader = document.getElementById('project-title-display');
+    const currentTitle = titleHeader.innerText;
+    const editBtn = document.getElementById('edit-title-btn');
+
+    if (editBtn) editBtn.style.display = 'none';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'form-control form-control-lg fw-bold mb-3';
+    input.value = currentTitle;
+    input.style.fontSize = '2.5rem';
+
+    titleHeader.parentNode.replaceChild(input, titleHeader);
+    input.focus();
+
+    function submitNewTitle() {
+        const newValue = input.value.trim();
+        if (newValue && newValue !== currentTitle) {
+            document.getElementById('title-value').value = newValue;
+            document.getElementById('title-value').form.submit();
+        } else {
+            input.parentNode.replaceChild(titleHeader, input);
+            if (editBtn) editBtn.style.display = 'inline-block';
+        }
+    }
+
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            submitNewTitle();
+        }
+        if (e.key === 'Escape') {
+            input.parentNode.replaceChild(titleHeader, input);
+            if (editBtn) editBtn.style.display = 'inline-block';
+        }
+    });
+
+    input.addEventListener('blur', function() {
+        submitNewTitle();
+    });
 }
 
 function addNewSection() {

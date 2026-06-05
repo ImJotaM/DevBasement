@@ -228,3 +228,17 @@ body {
     background: white;
     border-radius: 15px;
 }
+
+.title-edit-mode { 
+    display: none;
+}
+
+.status-badge-custom {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 30px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}

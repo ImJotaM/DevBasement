@@ -22,12 +22,21 @@ class Technology(models.Model):
         return self.name
 
 class Project(models.Model):
+
+    STATUS_CHOICES = [
+        ('planning', 'Planejamento'),
+        ('in_progress', 'Em Desenvolvimento'),
+        ('completed', 'Concluído'),
+    ]
+
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='projects')
     title = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100, editable=False) 
     description = models.TextField()
     is_private = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='planning')
     technologies = models.ManyToManyField(Technology, related_name='projects', blank=True)
 
     class Meta:
@@ -82,6 +91,7 @@ class Project(models.Model):
     def references(self):
         return self.sections.filter(section_type='reference')
 
+    @property
     def references_count(self):
         return self.references.count()
 
