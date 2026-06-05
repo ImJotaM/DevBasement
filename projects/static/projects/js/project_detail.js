@@ -113,10 +113,10 @@ function addNewSection() {
                             + Inserir Bloco de Código
                         </button>
                     </div>
-                    <textarea id="section-content-${tempId}" class="form-control" rows="8">Escreva aqui...</textarea>
+                    <textarea id="section-content-${tempId}" class="form-control" rows="8" placeholder="Escreva aqui..."></textarea>
                 </div>
 
-                <small id="hint-${tempId}" class="text-muted d-block mb-3">Markdown suportado: títulos, listas, código e links.</small>
+                <small id="hint-${tempId}" class="text-muted d-block mb-3"><b>Markdown suportado:</b> títulos, listas, código e links.</small>
                 
                 <button class="btn btn-sm btn-primary" onclick="saveNewSection('${tempId}')">Salvar</button>
                 <button class="btn btn-sm btn-secondary" onclick="deleteTempSection('${tempId}')">Cancelar</button>
@@ -182,7 +182,7 @@ function insertCodeSnippet(textareaId) {
     const textAfter = textarea.value.substring(endPos, textarea.value.length);
     
     const selectedText = textarea.value.substring(startPos, endPos) || "// insira seu código aqui";
-    const snippet = `\n\`\`\`javascript\n${selectedText}\n\`\`\`\n`;
+    const snippet = `\`\`\`linguagem\n${selectedText}\n\`\`\``;
 
     textarea.value = textBefore + snippet + textAfter;
     
@@ -198,12 +198,13 @@ function updateFormHint(tempId) {
     
     if (type === 'question') {
         hintElement.innerHTML = "<b>Modo Pergunta:</b> Usuários poderão responder e criar discussões específicas para sanar essa dúvida.";
-        if(textarea.value === "Escreva aqui...") textarea.value = "Qual a melhor abordagem para...";
+        textarea.placeholder = "Qual a melhor abordagem para...";
     } else if (type === 'reference') {
         hintElement.innerHTML = "<b>Modo Referência:</b> Adicione links úteis no formato Markdown: <code class='text-dark'>[Nome do Site](https://link.com)</code> acompanhado de descrições.";
-        if(textarea.value === "Escreva aqui...") textarea.value = "- [Documentação Oficial](https://...)\n- [Artigo de Referência](https://...)";
+        textarea.placeholder = "- [Documentação Oficial](https://...)";
     } else {
-        hintElement.innerHTML = "Markdown suportado: títulos, listas, código e links.";
+        hintElement.innerHTML = "<b>Markdown suportado:</b> títulos, listas, código e links.";
+        textarea.placeholder = "Escreva aqui...";
     }
 }
 
