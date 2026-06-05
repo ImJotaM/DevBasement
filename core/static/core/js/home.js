@@ -51,7 +51,6 @@ document.querySelectorAll('.follow-btn').forEach(button => {
 
 document.querySelectorAll('.like-btn').forEach(button => {
     button.addEventListener('click', function() {
-        const projectId = this.getAttribute('data-project-id');
         const csrftoken = getCookie('csrftoken');
         const icon = this.querySelector('i');
         const countSpan = this.querySelector('.likes-count');
@@ -112,10 +111,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const modalErrorMessage = document.getElementById('modalErrorMessage');
     const btnAdminDelete = document.getElementById('btnAdminDelete');
 
+    let activeProjectUsername = '';
+    let activeProjectSlug = '';
+
     reportButtons.forEach(button => {
         button.addEventListener('click', function () {
             const projectId = this.getAttribute('data-project-id');
             const projectTitle = this.getAttribute('data-project-title');
+            
+            activeProjectUsername = this.getAttribute('data-project-username');
+            activeProjectSlug = this.getAttribute('data-project-slug');
             
             reportForm.reset();
             modalErrorMessage.classList.add('d-none');
@@ -131,32 +136,30 @@ document.addEventListener("DOMContentLoaded", function () {
     reportForm.addEventListener('submit', function (e) {
         e.preventDefault();
         
-        const projectId = modalProjectId.value;
         const formData = new FormData(reportForm);
         formData.append('action', 'report');
 
-        sendReportForModeration(projectId, formData);
+        sendReportForModeration(activeProjectUsername, activeProjectSlug, formData);
     });
 
     if (btnAdminDelete) {
         btnAdminDelete.addEventListener('click', function () {
             if (confirm("Tem certeza absoluta de que deseja excluir permanentemente este projeto da plataforma?")) {
-                const projectId = modalProjectId.value;
                 const csrfToken = reportForm.querySelector('[name=csrfmiddlewaretoken]').value;
                 
                 const formData = new FormData();
                 formData.append('csrfmiddlewaretoken', csrfToken);
                 formData.append('action', 'delete');
                 
-                sendReportForModeration(projectId, formData);
+                sendReportForModeration(activeProjectUsername, activeProjectSlug, formData);
             }
         });
     }
 
-    function sendReportForModeration(projectId, formData) {
+    function sendReportForModeration(username, slug, formData) {
         modalErrorMessage.classList.add('d-none');
         
-        fetch(`/projects/${projectId}/report/`, {
+        fetch(`/${username}/${slug}/report/`, {
             method: 'POST',
             body: formData,
             headers: {

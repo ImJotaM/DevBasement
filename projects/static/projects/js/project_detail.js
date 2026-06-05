@@ -32,7 +32,6 @@ function toggleEdit(sectionId) {
     
     if (displayDiv && editDiv && titleDisplayDiv && titleEditDiv) {
         if (displayDiv.classList.contains('hidden')) {
-
             displayDiv.classList.remove('hidden');
             titleDisplayDiv.classList.remove('hidden');
             editDiv.classList.remove('active');
@@ -41,9 +40,7 @@ function toggleEdit(sectionId) {
             if (currentCard) {
                 currentCard.classList.remove('editing-mode');
             }
-
         } else {
-            
             displayDiv.classList.add('hidden');
             titleDisplayDiv.classList.add('hidden');
             editDiv.classList.add('active');
@@ -57,7 +54,6 @@ function toggleEdit(sectionId) {
             if (textArea) {
                 setTimeout(() => {
                     textArea.focus();
-                    
                     const length = textArea.value.length;
                     textArea.setSelectionRange(length, length);
                 }, 50);
@@ -67,11 +63,14 @@ function toggleEdit(sectionId) {
 }
 
 function editTitle() {
-    const currentTitle = document.getElementById('title-value').value;
+    const titleValueInput = document.getElementById('title-value');
+    if (!titleValueInput) return;
+
+    const currentTitle = titleValueInput.value;
     const newTitle = prompt('Editar título do projeto:', currentTitle);
-    if (newTitle && newTitle !== currentTitle) {
-        document.getElementById('title-value').value = newTitle;
-        document.querySelector('#title-value').closest('form').submit();
+    if (newTitle && newTitle.trim() !== "" && newTitle !== currentTitle) {
+        titleValueInput.value = newTitle.trim();
+        titleValueInput.closest('form').submit();
     }
 }
 
@@ -80,7 +79,7 @@ function addNewSection() {
     const tempId = `temp-${Date.now()}-${newSectionCounter}`;
     const sectionsContainer = document.getElementById('sections-container');
     const addButton = document.querySelector('.add-section-btn');
-    const emptyMessage = document.getElementById('empty-message');
+    const emptyMessage = document.querySelector('.empty-state');
     
     if (addButton) addButton.classList.add('d-none');
     if (emptyMessage) emptyMessage.classList.add('d-none');
@@ -137,9 +136,12 @@ function saveNewSection(tempId) {
     const title = document.getElementById(`section-title-${tempId}`).value;
     const content = document.getElementById(`section-content-${tempId}`).value;
     const sectionType = document.getElementById(`section-type-${tempId}`).value;
-    const projectId = document.getElementById('sections-container').getAttribute('data-project-id');
     
-    fetch(`/projects/${projectId}/section/create/`, {
+    const container = document.getElementById('sections-container');
+    const username = container.getAttribute('data-owner-username');
+    const slug = container.getAttribute('data-project-slug');
+    
+    fetch(`/${username}/${slug}/section/create/`, {
         method: 'POST',
         headers: {
             'X-CSRFToken': getCookie('csrftoken'),
@@ -151,7 +153,13 @@ function saveNewSection(tempId) {
     .then(data => {
         if (data.success) {
             location.reload();
+        } else {
+            alert('Erro ao salvar seção: ' + (data.error || 'Erro desconhecido.'));
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Erro de comunicação com o servidor.');
     });
 }
 
@@ -162,13 +170,16 @@ function deleteTempSection(tempId) {
     }
     
     const addButton = document.querySelector('.add-section-btn');
-    const emptyMessage = document.getElementById('empty-message');
+    const emptyMessage = document.querySelector('.empty-state');
 
     if (addButton) {
         addButton.classList.remove('d-none');
     }
     if (emptyMessage) {
-        emptyMessage.classList.remove('d-none');
+        const remainingCards = document.querySelectorAll('#sections-container .section-card');
+        if (remainingCards.length === 0) {
+            emptyMessage.classList.remove('d-none');
+        }
     }
 }
 

@@ -57,7 +57,7 @@
                                         <h5 class="fw-bold m-0 text-dark">
                                             {{ project.title }}
                                         </h5>
-                                        <a href="{% url 'project_detail' project.id %}" target="_blank" class="text-primary text-decoration-none small" title="Ver projeto original">
+                                        <a href="{% url 'project_detail' project.owner.username project.slug %}" target="_blank" class="text-primary text-decoration-none small" title="Ver projeto original">
                                             <i class="fas fa-external-link-alt ms-1" style="font-size: 0.85rem;"></i>
                                         </a>
                                     </div>

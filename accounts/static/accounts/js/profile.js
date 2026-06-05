@@ -13,11 +13,14 @@ function getCookie(name) {
     return cookieValue;
 }
 
-document.querySelectorAll('.profile-page-follow-btn').forEach(button => {
+document.querySelectorAll('.follow-btn').forEach(button => {
     button.addEventListener('click', function() {
-        const url = this.getAttribute('data-url');
+        const username = this.getAttribute('data-username');
         const csrftoken = getCookie('csrftoken');
         const followersCounter = document.getElementById('followers-count-val');
+        
+        if (!username) return;
+        const url = `/accounts/follow/${username}/`;
 
         fetch(url, {
             method: 'POST',
@@ -35,10 +38,10 @@ document.querySelectorAll('.profile-page-follow-btn').forEach(button => {
         .then(data => {
             if (data.is_following) {
                 this.textContent = 'Seguindo';
-                this.className = 'btn-follow following profile-page-follow-btn';
+                this.className = 'btn btn-outline-primary btn-sm rounded-pill px-3 follow-btn';
             } else {
                 this.innerHTML = '<i class="fas fa-user-plus me-1"></i> Seguir';
-                this.className = 'btn-follow profile-page-follow-btn';
+                this.className = 'btn btn-primary btn-sm rounded-pill px-3 follow-btn';
             }
             
             if (followersCounter && data.followers_count !== undefined) {
@@ -56,7 +59,7 @@ document.querySelectorAll('.like-btn').forEach(button => {
         const url = this.getAttribute('data-url');
         const csrftoken = getCookie('csrftoken');
         const icon = this.querySelector('i');
-        const countSpan = this.querySelector('span');
+        const countSpan = this.querySelector('.likes-count');
 
         if (!url) return;
 
@@ -76,7 +79,7 @@ document.querySelectorAll('.like-btn').forEach(button => {
         .then(data => {
             if (data.liked) {
                 this.classList.add('text-danger');
-                icon.className = 'fas fa-heart';
+                icon.className = 'fas fa-heart text-danger';
             } else {
                 this.classList.remove('text-danger');
                 icon.className = 'far fa-heart';

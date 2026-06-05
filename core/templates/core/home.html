@@ -121,6 +121,8 @@
                             <button type="button" 
                                     class="btn btn-link text-dark p-0 border-0 btn-report" 
                                     data-project-id="{{ project.id }}" 
+                                    data-project-username="{{ project.owner.username }}"
+                                    data-project-slug="{{ project.slug }}"
                                     data-project-title="{{ project.title }}"
                                     style="font-size: 0.8rem; text-decoration: none;">
                                 <i class="bi bi-flag"></i>
@@ -132,7 +134,7 @@
                     
                     <div class="mb-3">
                         <h4 class="mb-2">
-                            <a href="{% url 'project_detail' project.id %}" class="text-decoration-none text-dark">
+                            <a href="{% url 'project_detail' project.owner.username project.slug %}" class="text-decoration-none text-dark">
                                 {{ project.title }}
                             </a>
                         </h4>
@@ -157,7 +159,7 @@
 
                             {% if project.references_count > 0 %}
                                 <span class="badge item-badge">
-                                    <i class="fas fa-bookmark"></i> {{ project.references_count }} Referências
+                                    <i class="fas fa-link"></i> {{ project.references_count }} Referências
                                 </span>
                             {% endif %}
                         </div>  
@@ -166,14 +168,14 @@
                     <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
                         <div class="d-flex gap-4 w-100 justify-content-start">
                             <div class="interaction-btn like-btn {% if project.id in user_liked_project_ids %}text-danger{% endif %}" 
-                                data-project-id="{{ project.id }}" 
-                                data-url="{% url 'like_project' project.id %}">
+                                 data-project-id="{{ project.id }}" 
+                                 data-url="{% url 'like_project' project.owner.username project.slug %}">
                                 <i class="{% if project.id in user_liked_project_ids %}fas{% else %}far{% endif %} fa-heart"></i> 
                                 <span class="likes-count">{{ project.likes_count }}</span>
                             </div>
                             <div class="interaction-btn comment-btn">
-                                <a href="{% url 'project_detail' project.id %}" class="text-decoration-none text-muted">
-                                    <i class="far fa-comment"></i> <span>{{ project.comments.count|default:0 }}</span>
+                                <a href="{% url 'project_detail' project.owner.username project.slug %}" class="text-decoration-none text-muted">
+                                    <i class="far fa-comment"></i> <span>{{ project.comments.count }}</span>
                                 </a>
                             </div>
                         </div>
@@ -272,7 +274,7 @@
             <form id="reportForm">
                 {% csrf_token %}
                 <input type="hidden" id="modalProjectId" name="project_id">
-            
+                
                 <div class="modal-body">
                     <p class="text-muted small">Você está reportando o projeto: <strong id="modalProjectTitle" class="text-dark"></strong></p>
                 
@@ -299,7 +301,7 @@
                     <div>
                     {% if user.is_authenticated and user.is_staff %}
                         <button type="button" id="btnAdminDelete" class="btn btn-danger fw-bold btn-sm">
-                        <i class="fas fa-trash-alt me-1"></i> Excluir Post
+                            <i class="fas fa-trash-alt me-1"></i> Excluir Post
                         </button>
                     {% endif %}
                     </div>

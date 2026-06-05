@@ -1,23 +1,48 @@
+import re
 from django.db import models
-from django.conf import settings
 from accounts.models import User
+from django.utils.text import slugify
+from django.core.exceptions import ValidationError
 
 class Project(models.Model):
-    STATUS_CHOICES = [
-        ('planning', 'Planejamento'),
-        ('in_progress', 'Em Desenvolvimento'),
-        ('completed', 'Concluído'),
-    ]
-    
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='projects')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='planning')
-    repo_url = models.URLField(blank=True, null=True)
-    demo_url = models.URLField(blank=True, null=True)
+    title = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, editable=False) 
+    description = models.TextField()
     is_private = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('owner', 'slug')
+
+    def clean(self):
+        super().clean()
+        
+        if not re.match(r'^[\w\s-]+$', self.title):
+            raise ValidationError({
+                'title': "O nome do projeto só pode conter letras, números, espaços, hifens (-) e underlines (_)."
+            })
+
+        temp_slug = slugify(self.title)
+        
+        if not temp_slug:
+            raise ValidationError({
+                'title': "O nome informado não gera um link válido para o projeto."
+            })
+
+        if hasattr(self, 'owner') and self.owner:
+            query = Project.objects.filter(owner=self.owner, slug=temp_slug)
+            if self.pk:
+                query = query.exclude(pk=self.pk)
+                
+            if query.exists():
+                raise ValidationError({
+                    'title': f"Você já possui um projeto chamado '{self.title}' (ou com link idêntico: /{self.owner.username}/{temp_slug}/)."
+                })
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
 
     @property
     def likes_count(self):
@@ -39,7 +64,6 @@ class Project(models.Model):
     def references(self):
         return self.sections.filter(section_type='reference')
 
-    @property
     def references_count(self):
         return self.references.count()
 

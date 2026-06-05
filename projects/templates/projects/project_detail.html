@@ -45,7 +45,7 @@
             </div>
             <div class="col-md-3 text-end mt-3 mt-md-0">
                 {% if user == project.owner %}
-                <form method="POST" action="{% url 'update_project_field' project.id %}" class="d-inline">
+                <form method="POST" action="{% url 'update_project_field' project.owner.username project.slug %}" class="d-inline">
                     {% csrf_token %}
                     <input type="hidden" name="field" value="title">    
                     <input type="hidden" name="value" id="title-value" value="{{ project.title }}">
@@ -78,7 +78,7 @@
                 </li>
             </ul>
 
-            <div class="tab-content" id="sections-container" data-project-id="{{ project.id }}">
+            <div class="tab-content" id="sections-container" data-project-id="{{ project.id }}" data-owner-username="{{ project.owner.username }}" data-project-slug="{{ project.slug }}">
                 
                 <div class="tab-pane fade show active" id="general">
                     {% for section in project.sections.all %}
@@ -133,7 +133,7 @@
                 </h4>
                 
                 {% if user.is_authenticated %}
-                    <form method="POST" action="{% url 'add_comment' project.id %}" class="d-flex gap-3 mb-4">
+                    <form method="POST" action="{% url 'add_comment' project.owner.username project.slug %}" class="d-flex gap-3 mb-4">
                         {% csrf_token %}
                         <div class="text-avatar-small" style="width: 48px; height: 48px; font-size: 1rem;">
                             {{ user.username|make_list|first|upper }}
@@ -176,7 +176,7 @@
         <div class="col-md-4">
             <div class="sidebar-card">
                 <div class="d-grid gap-2 mb-3">
-                    <form method="POST" action="{% url 'like_project' project.id %}">
+                    <form method="POST" action="{% url 'like_project' project.owner.username project.slug %}">
                         {% csrf_token %}
                         <button type="submit" id="likeButton" class="btn-like {% if user_liked %}liked{% endif %}" style="width: 100%;">
                             <i class="{% if user_liked %}fas{% else %}far{% endif %} fa-heart me-2"></i> 
@@ -194,7 +194,7 @@
                         </a>
                     {% endif %}
                     {% if user.is_authenticated and user != project.owner %}
-                        <a href="{% url 'report_project' project.id %}" class="btn btn-outline-danger rounded-pill mt-1">
+                        <a href="{% url 'report_project' project.owner.username project.slug %}" class="btn btn-outline-danger rounded-pill mt-1">
                             <i class="fas fa-flag me-2"></i> Reportar Projeto
                         </a>
                     {% endif %}
@@ -234,7 +234,7 @@
                         </strong>
                     </div>
                     {% if user == project.owner %}
-                    <form method="POST" action="{% url 'update_project_field' project.id %}" class="mt-2">
+                    <form method="POST" action="{% url 'update_project_field' project.owner.username project.slug %}" class="mt-2">
                         {% csrf_token %}
                         <input type="hidden" name="field" value="status">
                         <select name="value" class="form-select">
