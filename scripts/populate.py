@@ -154,7 +154,7 @@ def seed():
         ):
 
             final_title = (
-                f"{title} ({user.username})"
+                f"{title}"
             )
 
             project, created = Project.objects.get_or_create(
