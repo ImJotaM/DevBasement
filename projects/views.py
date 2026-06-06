@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import login_required
 from .models import Project, ProjectLike, Comment, ProjectSection, SectionAnswer, Technology
 from .forms import ProjectForm
 from moderation.models import Report
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse
+from django.utils.text import slugify
 
 def project_detail_view(request, username, slug):
     try:
@@ -43,18 +44,25 @@ def create_project_view(request):
     if request.method == 'POST':
         form = ProjectForm(request.POST)
         if form.is_valid():
-            project = form.save(commit=False)
-            project.owner = request.user
-            project.save() 
+            title = form.cleaned_data.get('title')
+            generated_slug = slugify(title)
             
-            ProjectSection.objects.create(
-                project=project,
-                title="Descrição do Projeto",
-                content=form.cleaned_data['description'],
-                is_pinned=True,
-            )
-            
-            return redirect('project_detail', username=project.owner.username, slug=project.slug)
+            if Project.objects.filter(owner=request.user, slug=generated_slug).exists():
+                form.add_error('title', "Você já possui um projeto cadastrado com este nome.")
+            else:
+                project = form.save(commit=False)
+                project.owner = request.user
+                project.slug = generated_slug
+                project.save() 
+                
+                ProjectSection.objects.create(
+                    project=project,
+                    title="Descrição do Projeto",
+                    content=form.cleaned_data['description'],
+                    is_pinned=True,
+                )
+                
+                return redirect('project_detail', username=project.owner.username, slug=project.slug)
     else:
         form = ProjectForm()
     
