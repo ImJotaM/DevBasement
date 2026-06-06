@@ -8,6 +8,7 @@ from moderation.models import Report
 from accounts.models import User
 from django.http import JsonResponse
 from django.utils.text import slugify
+from django.core.exceptions import PermissionDenied
 
 def project_detail_view(request, username, slug):
     try:
@@ -226,19 +227,23 @@ def add_comment(request, username, slug):
     
     return redirect('project_detail', username=project.owner.username, slug=project.slug)
 
-@login_required
 def update_project_field(request, username, slug):
-    project = get_object_or_404(Project, owner__username=username, slug=slug, owner=request.user)
-    
-    if request.method == 'POST':
+    if request.method == "POST":
+        project = get_object_or_404(Project, owner__username=username, slug=slug)
+        
+        if request.user != project.owner:
+            raise PermissionDenied
+            
         field = request.POST.get('field')
         value = request.POST.get('value')
         
-        if field in ['title', 'description', 'status']:
+        if field == 'is_private':
+            project.is_private = (value == 'True')
+        else:
             setattr(project, field, value)
-            project.save()
             
-    return redirect('project_detail', username=project.owner.username, slug=project.slug)
+        project.save()
+        return redirect('project_detail', username=username, slug=slug)
 
 @login_required
 @require_POST

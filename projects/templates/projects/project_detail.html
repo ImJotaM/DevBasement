@@ -301,7 +301,7 @@
                 <div>
                     <h6 class="d-block"><b>Status</b></h6>
                     {% if user == project.owner %}
-                    <form method="POST" action="{% url 'update_project_field' project.owner.username project.slug %}" class="mt-2">
+                    <form method="POST" action="{% url 'update_project_field' project.owner.username project.slug %}" class="mt-2 border-bottom">
                         {% csrf_token %}
                         <input type="hidden" name="field" value="status">
                         <select name="value" class="form-select">
@@ -309,7 +309,7 @@
                             <option value="in_progress" {% if project.status == 'in_progress' %}selected{% endif %}>Em Desenvolvimento</option>
                             <option value="completed" {% if project.status == 'completed' %}selected{% endif %}>Concluído</option>
                         </select>
-                        <button type="submit" class="btn btn-sm btn-primary mt-2">Salvar Status</button>
+                        <button type="submit" class="btn btn-sm btn-primary mt-2 mb-3">Salvar Status</button>
                     </form>
                     {% else %}
                         {% if project.status == 'planning' %}
@@ -330,6 +330,31 @@
                             </span>
                         {% endif %}
                     {% endif %}
+
+                    <div>
+                        <h6 class="d-block mt-2"><b>Visibilidade</b></h6>
+                        {% if user == project.owner %}
+                        <form method="POST" action="{% url 'update_project_field' project.owner.username project.slug %}" class="mt-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="field" value="is_private">
+                            <select name="value" class="form-select form-select-sm">
+                                <option value="False" {% if not project.is_private %}selected{% endif %}>Público (Qualquer um pode ver)</option>
+                                <option value="True" {% if project.is_private %}selected{% endif %}>Privado (Apenas você)</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary mt-2 px-3">Alterar Privacidade</button>
+                        </form>
+                        {% else %}
+                            {% if project.is_private %}
+                                <span class="badge bg-primary text-white px-3 py-2 rounded-pill fw-medium">
+                                    Projeto Privado
+                                </span>
+                            {% else %}
+                                <span class="badge bg-primary text-white px-3 py-2 rounded-pill fw-medium">
+                                    Projeto Público
+                                </span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
