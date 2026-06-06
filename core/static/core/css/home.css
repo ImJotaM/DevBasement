@@ -10,33 +10,6 @@ body {
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.project-card {
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    transition: all 0.2s ease;
-}
-
-.project-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.btn-primary-custom {
-    background-color: #1da1f2;
-    border: none;
-    border-radius: 30px;
-    padding: 8px 20px;
-    font-weight: bold;
-    color: white;
-}
-
-.btn-primary-custom:hover {
-    background-color: #0d8bd9;
-    color: white;
-}
-
 .trending-tag {
     color: #1da1f2;
     font-weight: bold;
@@ -71,16 +44,19 @@ body {
     color: #667eea;
 }
 
-.interaction-btn {
-    color: #536471;
-    cursor: pointer;
-    transition: color 0.2s;
-    font-size: 0.95rem;
+.btn-primary-custom {
+    background-color: #1da1f2;
+    border: none;
+    border-radius: 30px;
+    padding: 8px 20px;
+    font-weight: bold;
+    color: white;
 }
 
-.like-btn:hover { color: #e0245e; }
-.comment-btn:hover { color: #1da1f2; }
-.question-btn:hover { color: #17bf63; }
+.btn-primary-custom:hover {
+    background-color: #0d8bd9;
+    color: white;
+}
 
 .support-btn {
     border-radius: 20px;
@@ -89,11 +65,15 @@ body {
     font-weight: bold;
 }
 
-.item-badge {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    color: #495057;
-    font-weight: 500;
+.interaction-btn {
+    color: #536471;
+    cursor: pointer;
+    transition: color 0.2s;
+    font-size: 0.95rem;
+}
+
+.question-btn:hover { 
+    color: #17bf63; 
 }
 
 .text-avatar {
@@ -108,19 +88,6 @@ body {
     justify-content: center;
     border-radius: 50%;
     margin: 0 auto;
-}
-
-.text-avatar-small {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
 }
 
 .text-avatar-tiny {

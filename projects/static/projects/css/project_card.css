@@ -1,0 +1,99 @@
+.project-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.project-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+.project-card h4 a {
+    transition: color 0.2s ease;
+}
+
+.project-card h4 a:hover {
+    color: #1da1f2 !important;
+}
+
+.project-card .item-badge {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.project-card .interaction-btn {
+    color: #536471;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.project-card .like-btn:hover,
+.project-card .like-btn.text-danger { 
+    color: #e0245e !important; 
+}
+
+.project-card .comment-btn:hover,
+.project-card .comment-btn a:hover { 
+    color: #1da1f2 !important; 
+}
+
+.project-card .favorite-btn:hover,
+.project-card .favorite-btn.text-warning { 
+    color: #ffc107 !important;
+}
+
+.project-card .text-avatar-small {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: opacity 0.2s ease;
+}
+
+.project-card .text-avatar-small:hover {
+    opacity: 0.9;
+}
+
+.project-card .btn-report {
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.project-card .btn-report:hover {
+    color: #dc3545 !important;
+}
+
+.dropdown-toggle.no-arrow::after {
+    display: none !important;
+}
+
+.dropdown-menu-custom {
+    border-radius: 10px;
+    padding: 0.5rem 0;
+}
+
+.dropdown-menu-custom .dropdown-item {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}

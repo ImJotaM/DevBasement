@@ -3,6 +3,7 @@ from django.db import models
 from accounts.models import User
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
+import json
 
 class Technology(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -129,6 +130,10 @@ class ProjectSection(models.Model):
     @property
     def answers_count(self):
         return self.answers.count()
+    
+    @property
+    def reference_links(self):
+        return self.links
 
 class SectionAnswer(models.Model):
     section = models.ForeignKey(ProjectSection, on_delete=models.CASCADE, related_name='answers')
@@ -139,6 +144,18 @@ class SectionAnswer(models.Model):
 
     class Meta:
         ordering = ['created_at']
+
+class SectionReferenceLink(models.Model):
+    section = models.ForeignKey(ProjectSection, on_delete=models.CASCADE, related_name='links')
+    description = models.CharField(max_length=255)
+    url = models.URLField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return self.description
 
 class Comment(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='comments')

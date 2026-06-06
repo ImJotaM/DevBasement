@@ -1,0 +1,88 @@
+.search-trigger-wrapper {
+    width: 100%;
+    max-width: 280px;
+    min-width: 220px;
+}
+
+.search-trigger-btn {
+    font-size: 0.85rem;
+    background-color: #f6f8fa !important;
+}
+
+.search-trigger-icon {
+    font-size: 0.8rem;
+}
+
+.search-kbd-hint {
+    font-size: 0.65rem;
+}
+
+.nav-actions-group {
+    gap: 0.75rem !important;
+}
+
+.nav-action-btn {
+    background-color: #f6f8fa !important;
+}
+
+.nav-action-icon {
+    font-size: 0.85rem;
+}
+
+.search-modal-dialog {
+    margin: 1.2rem auto;
+    max-width: 850px;
+    width: 92%;
+}
+
+.search-modal-input {
+    font-size: 0.92rem;
+}
+
+.search-modal-close-icon {
+    font-size: 0.85rem;
+}
+
+.search-modal-body-wrapper {
+    max-height: 380px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+}
+
+.search-modal-footer-hint {
+    font-size: 0.72rem;
+}
+
+.text-avatar {
+    width: 80px; 
+    height: 80px; 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto;
+}
+
+.text-avatar-tiny {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    user-select: none;
+}
+
+.navbar-profile-img {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+}

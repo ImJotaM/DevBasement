@@ -1,4 +1,6 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from .models import User
 
 class SignupForm(forms.Form):
     first_name = forms.CharField(
@@ -25,6 +27,34 @@ class SignupForm(forms.Form):
         label="Confirmar Senha",
         widget=forms.PasswordInput(attrs={'class': 'form-control form-control-custom', 'placeholder': 'Repita a senha'})
     )
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username').strip().lower()
+
+        RESERVED_USERNAMES = [
+            'admin', 'login', 'signup', 'logout', 'profile', 
+            'moderation', 'core', 'projects', 'accounts', 'api',
+            'dashboard', 'settings', 'help', 'search', 'follow',
+            'go_back',
+        ]
+
+        if username in RESERVED_USERNAMES:
+            raise ValidationError("Este nome de usuário é reservado pelo sistema e não pode ser utilizado.")
+
+        if User.objects.filter(username__iexact=username).exists():
+            raise ValidationError("Este nome de usuário já está em uso.")
+
+        return username
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password and confirm_password and password != confirm_password:
+            self.add_error('confirm_password', "As senhas informadas não coincidem.")
+            
+        return cleaned_data
 
 class LoginForm(forms.Form):
     username = forms.CharField(

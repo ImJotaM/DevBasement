@@ -27,7 +27,6 @@ function toggleEdit(sectionId) {
     const editDiv = document.getElementById(`section-edit-${sectionId}`);
     const titleDisplayDiv = document.getElementById(`section-title-display-${sectionId}`);
     const titleEditDiv = document.getElementById(`section-title-edit-${sectionId}`);
-    
     const currentCard = document.getElementById(`section-${sectionId}`);
     
     if (displayDiv && editDiv && titleDisplayDiv && titleEditDiv) {
@@ -37,18 +36,14 @@ function toggleEdit(sectionId) {
             editDiv.classList.remove('active');
             titleEditDiv.classList.remove('active');
             
-            if (currentCard) {
-                currentCard.classList.remove('editing-mode');
-            }
+            if (currentCard) currentCard.classList.remove('editing-mode');
         } else {
             displayDiv.classList.add('hidden');
             titleDisplayDiv.classList.add('hidden');
             editDiv.classList.add('active');
             titleEditDiv.classList.add('active');
             
-            if (currentCard) {
-                currentCard.classList.add('editing-mode');
-            }
+            if (currentCard) currentCard.classList.add('editing-mode');
             
             const textArea = editDiv.querySelector('textarea');
             if (textArea) {
@@ -70,7 +65,6 @@ function editDescription() {
     if (!descDisplay || !container) return;
     
     const currentDesc = descDisplay.innerText;
-
     if (editBtn) editBtn.style.display = 'none';
 
     const textarea = document.createElement('textarea');
@@ -97,8 +91,10 @@ function editDescription() {
         const newValue = textarea.value.trim();
         if (newValue !== currentDesc) {
             const hiddenTextarea = document.getElementById('description-value');
-            hiddenTextarea.value = newValue;
-            hiddenTextarea.form.submit();
+            if (hiddenTextarea) {
+                hiddenTextarea.value = newValue;
+                hiddenTextarea.form.submit();
+            }
         } else {
             cancelEditing();
         }
@@ -107,21 +103,19 @@ function editDescription() {
     container.innerHTML = '';
     container.appendChild(textarea);
     container.appendChild(actionsDiv);
-    
     textarea.focus();
 
     document.getElementById('save-desc-btn').addEventListener('click', submitNewDescription);
     document.getElementById('cancel-desc-btn').addEventListener('click', cancelEditing);
-
-    textarea.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            cancelEditing();
-        }
+    textarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') cancelEditing();
     });
 }
 
 function editTitle() {
     const titleHeader = document.getElementById('project-title-display');
+    if (!titleHeader) return;
+
     const currentTitle = titleHeader.innerText;
     const editBtn = document.getElementById('edit-title-btn');
 
@@ -138,135 +132,25 @@ function editTitle() {
 
     function submitNewTitle() {
         const newValue = input.value.trim();
-        if (newValue && newValue !== currentTitle) {
-            document.getElementById('title-value').value = newValue;
-            document.getElementById('title-value').form.submit();
+        const hiddenTitleInput = document.getElementById('title-value');
+        if (newValue && newValue !== currentTitle && hiddenTitleInput) {
+            hiddenTitleInput.value = newValue;
+            hiddenTitleInput.form.submit();
         } else {
-            input.parentNode.replaceChild(titleHeader, input);
+            if (input.parentNode) input.parentNode.replaceChild(titleHeader, input);
             if (editBtn) editBtn.style.display = 'inline-block';
         }
     }
 
-    input.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            submitNewTitle();
-        }
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') submitNewTitle();
         if (e.key === 'Escape') {
-            input.parentNode.replaceChild(titleHeader, input);
+            if (input.parentNode) input.parentNode.replaceChild(titleHeader, input);
             if (editBtn) editBtn.style.display = 'inline-block';
         }
     });
-
-    input.addEventListener('blur', function() {
-        submitNewTitle();
-    });
+    input.addEventListener('blur', submitNewTitle);
 }
-
-document.querySelectorAll('.like-btn').forEach(button => {
-    button.addEventListener('click', function() {
-        const csrftoken = getCookie('csrftoken');
-        const icon = this.querySelector('i');
-        const countSpan = this.querySelector('.likes-count');
-
-        if (!csrftoken) {
-            window.location.href = '/accounts/login/';
-            return;
-        }
-
-        const url = this.getAttribute('data-url');
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrftoken,
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => {
-            if (response.status === 403 || response.status === 401) {
-                window.location.href = '/accounts/login/';
-                return;
-            }
-            if (!response.ok) {
-                throw new Error(`Erro na requisição. Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data) {
-                if (countSpan && data.likes_count !== undefined) {
-                    countSpan.textContent = data.likes_count;
-                }
-
-                if (data.liked) {
-                    this.classList.remove('btn-outline-danger');
-                    this.classList.add('btn-danger', 'text-white');
-                    icon.className = 'fas fa-heart me-2';
-                } else {
-                    this.classList.remove('btn-danger', 'text-white');
-                    this.classList.add('btn-outline-danger');
-                    icon.className = 'far fa-heart me-2';
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Erro ao curtir o projeto:', error);
-        });
-    });
-});
-
-document.querySelectorAll('.favorite-btn').forEach(button => {
-    button.addEventListener('click', function() {
-        const csrftoken = getCookie('csrftoken');
-        const icon = this.querySelector('i');
-        const textSpan = this.querySelector('.favorite-text');
-
-        if (!csrftoken) {
-            window.location.href = '/accounts/login/';
-            return;
-        }
-
-        const url = this.getAttribute('data-url');
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrftoken,
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => {
-            if (response.status === 403 || response.status === 401) {
-                window.location.href = '/accounts/login/';
-                return;
-            }
-            if (!response.ok) {
-                throw new Error(`Erro na requisição. Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data && data.favorited !== undefined) {
-                if (data.favorited) {
-                    this.classList.remove('btn-outline-warning');
-                    this.classList.add('btn-warning', 'text-white');
-                    icon.className = 'fas fa-star me-2';
-                    if (textSpan) textSpan.textContent = 'Favoritado';
-                } else {
-                    this.classList.remove('btn-warning', 'text-white');
-                    this.classList.add('btn-outline-warning');
-                    icon.className = 'far fa-star me-2';
-                    if (textSpan) textSpan.textContent = 'Favoritar';
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Erro ao favoritar o projeto:', error);
-        });
-    });
-});
 
 function addNewSection() {
     newSectionCounter++;
@@ -283,7 +167,6 @@ function addNewSection() {
             <div class="section-header mb-3">
                 <h3 class="mb-0">Nova Seção</h3>
             </div>
-
             <div id="section-edit-${tempId}" class="inline-edit active">
                 <div class="mb-2">
                     <label class="form-label small fw-bold text-muted">Tipo de Conteúdo (Tag):</label>
@@ -293,12 +176,10 @@ function addNewSection() {
                         <option value="reference">Referência / Link</option>
                     </select>
                 </div>
-
                 <div class="mb-2">
                     <label class="form-label small fw-bold text-muted">Título:</label>
                     <input type="text" id="section-title-${tempId}" class="form-control" value="Nova Seção">
                 </div>
-
                 <div class="mb-2">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <label class="form-label small fw-bold text-muted mb-0">Conteúdo:</label>
@@ -308,22 +189,23 @@ function addNewSection() {
                     </div>
                     <textarea id="section-content-${tempId}" class="form-control" rows="8" placeholder="Escreva aqui..."></textarea>
                 </div>
-
                 <small id="hint-${tempId}" class="text-muted d-block mb-3"><b>Markdown suportado:</b> títulos, listas, código e links.</small>
-                
                 <button class="btn btn-sm btn-primary" onclick="saveNewSection('${tempId}')">Salvar</button>
                 <button class="btn btn-sm btn-secondary" onclick="deleteTempSection('${tempId}')">Cancelar</button>
             </div>
         </div>
     `;
     
-    if (addButton) {
-        sectionsContainer.insertBefore(createElementFromHTML(newSectionHtml), addButton);
-    } else {
-        sectionsContainer.insertAdjacentHTML('afterbegin', newSectionHtml);
+    if (sectionsContainer) {
+        if (addButton) {
+            sectionsContainer.insertBefore(createElementFromHTML(newSectionHtml), addButton);
+        } else {
+            sectionsContainer.insertAdjacentHTML('afterbegin', newSectionHtml);
+        }
     }
     
-    document.getElementById(`section-title-${tempId}`).focus();
+    const newTitleInput = document.getElementById(`section-title-${tempId}`);
+    if (newTitleInput) newTitleInput.focus();
 }
 
 function saveNewSection(tempId) {
@@ -332,8 +214,28 @@ function saveNewSection(tempId) {
     const sectionType = document.getElementById(`section-type-${tempId}`).value;
     
     const container = document.getElementById('sections-container');
+    if (!container) return;
+
     const username = container.getAttribute('data-owner-username');
     const slug = container.getAttribute('data-project-slug');
+    
+    let bodyData = `title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}&section_type=${encodeURIComponent(sectionType)}`;
+    
+    if (sectionType === 'reference') {
+        const linkContainer = document.getElementById(`links-edit-container-${tempId}`);
+        if (linkContainer) {
+            const descriptions = linkContainer.querySelectorAll('input[name="link_description[]"]');
+            const urls = linkContainer.querySelectorAll('input[name="link_url[]"]');
+            
+            descriptions.forEach((descInput, index) => {
+                const urlInput = urls[index];
+                if (descInput.value.trim() && urlInput.value.trim()) {
+                    bodyData += `&link_description[]=${encodeURIComponent(descInput.value.trim())}`;
+                    bodyData += `&link_url[]=${encodeURIComponent(urlInput.value.trim())}`;
+                }
+            });
+        }
+    }
     
     fetch(`/${username}/${slug}/section/create/`, {
         method: 'POST',
@@ -341,7 +243,7 @@ function saveNewSection(tempId) {
             'X-CSRFToken': getCookie('csrftoken'),
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: 'title=' + encodeURIComponent(title) + '&content=' + encodeURIComponent(content) + '&section_type=' + encodeURIComponent(sectionType)
+        body: bodyData
     })
     .then(response => response.json())
     .then(data => {
@@ -359,21 +261,15 @@ function saveNewSection(tempId) {
 
 function deleteTempSection(tempId) {
     const tempSection = document.getElementById(`section-${tempId}`);
-    if (tempSection) {
-        tempSection.remove();
-    }
+    if (tempSection) tempSection.remove();
     
     const addButton = document.querySelector('.add-section-btn');
     const emptyMessage = document.querySelector('.empty-state');
 
-    if (addButton) {
-        addButton.classList.remove('d-none');
-    }
+    if (addButton) addButton.classList.remove('d-none');
     if (emptyMessage) {
         const remainingCards = document.querySelectorAll('#sections-container .section-card');
-        if (remainingCards.length === 0) {
-            emptyMessage.classList.remove('d-none');
-        }
+        if (remainingCards.length === 0) emptyMessage.classList.remove('d-none');
     }
 }
 
@@ -390,10 +286,32 @@ function insertCodeSnippet(textareaId) {
     const snippet = `\`\`\`linguagem\n${selectedText}\n\`\`\``;
 
     textarea.value = textBefore + snippet + textAfter;
-    
     textarea.focus();
+    
     const newCursorPos = startPos + snippet.length;
     textarea.setSelectionRange(newCursorPos, newCursorPos);
+}
+
+function addLinkRowDynamic(sectionId) {
+    const container = document.getElementById(`links-edit-container-${sectionId}`);
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'row g-2 align-items-center link-input-row';
+    row.innerHTML = `
+        <div class="col-md-5">
+            <input type="text" name="link_description[]" class="form-control form-control-sm" placeholder="Breve descrição (Ex: Repositório Frontend)" required>
+        </div>
+        <div class="col-md-6">
+            <input type="url" name="link_url[]" class="form-control form-control-sm" placeholder="https://exemplo.com" required>
+        </div>
+        <div class="col-md-1 text-end">
+            <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="this.closest('.link-input-row').remove();">
+                <i class="fas fa-minus-circle"></i>
+            </button>
+        </div>
+    `;
+    container.appendChild(row);
 }
 
 function updateFormHint(tempId) {
@@ -401,40 +319,209 @@ function updateFormHint(tempId) {
     const hintElement = document.getElementById(`hint-${tempId}`);
     const textarea = document.getElementById(`section-content-${tempId}`);
     
+    if (!hintElement || !textarea) return;
+
+    const existingZone = document.getElementById(`links-zone-${tempId}`);
+    if (existingZone) existingZone.remove();
+    
+    textarea.parentNode.classList.remove('d-none');
+
     if (type === 'question') {
         hintElement.innerHTML = "<b>Modo Pergunta:</b> Usuários poderão responder e criar discussões específicas para sanar essa dúvida.";
         textarea.placeholder = "Qual a melhor abordagem para...";
     } else if (type === 'reference') {
-        hintElement.innerHTML = "<b>Modo Referência:</b> Adicione links úteis no formato Markdown: <code class='text-dark'>[Nome do Site](https://link.com)</code> acompanhado de descrições.";
-        textarea.placeholder = "- [Documentação Oficial](https://...)";
+        hintElement.innerHTML = "<b>Modo Referência:</b> Escreva um texto de introdução acima e gerencie abaixo os links úteis em formato de cards.";
+        textarea.placeholder = "Aqui estão as referências que utilizei no desenvolvimento do projeto...";
+
+        const linksZoneHtml = `
+            <div id="links-zone-${tempId}" class="border-top pt-3 mt-3">
+                <h6 class="fw-bold mb-3 text-secondary d-flex align-items-center gap-2">
+                    <i class="fas fa-list-ol"></i> Gerenciar Cards de Links
+                </h6>
+                <div id="links-edit-container-${tempId}" class="d-flex flex-column gap-2 mb-3"></div>
+                <button type="button" class="btn btn-xs btn-outline-success rounded-pill fw-bold mb-3" style="font-size: 0.8rem;" onclick="addLinkRowDynamic('${tempId}')">
+                    <i class="fas fa-plus me-1"></i> Adicionar Referência
+                </button>
+            </div>
+        `;
+        
+        hintElement.insertAdjacentHTML('afterend', linksZoneHtml);
     } else {
         hintElement.innerHTML = "<b>Markdown suportado:</b> títulos, listas, código e links.";
         textarea.placeholder = "Escreva aqui...";
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
+    
     if (typeof markdownit !== 'undefined') {
         converter = markdownit({
             html: true,
             linkify: true,
             typographer: true,
             highlight: function(str, lang) {
-                return '<pre class="hljs"><code>' + markdownit().utils.escapeHtml(str) + '</code></pre>';
+                return '<pre class="hljs"><code>' + converter.utils.escapeHtml(str) + '</code></pre>';
             }
         });
         
-        document.querySelectorAll('.markdown-content').forEach(function(element) {
+        document.querySelectorAll('.markdown-content').forEach(element => {
             const markdown = element.getAttribute('data-markdown');
-            if (markdown) {
-                element.innerHTML = converter.render(markdown);
-            }
+            if (markdown) element.innerHTML = converter.render(markdown);
         });
     }
     
     if (typeof hljs !== 'undefined') {
-        document.querySelectorAll('pre code').forEach(function(block) {
+        document.querySelectorAll('pre code').forEach(block => {
             hljs.highlightElement(block);
+        });
+    }
+
+    document.addEventListener('click', function(e) {
+        const button = e.target.closest('.like-btn');
+        if (!button) return;
+
+        const csrftoken = getCookie('csrftoken');
+        const icon = button.querySelector('i');
+        const countSpan = button.querySelector('.likes-count');
+
+        if (!csrftoken) {
+            window.location.href = '/accounts/login/';
+            return;
+        }
+
+        const url = button.getAttribute('data-url');
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.status === 403 || response.status === 401) {
+                window.location.href = '/accounts/login/';
+                return;
+            }
+            if (!response.ok) throw new Error(`Erro na requisição. Status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            if (data) {
+                if (countSpan && data.likes_count !== undefined) countSpan.textContent = data.likes_count;
+
+                if (data.liked) {
+                    button.classList.remove('btn-outline-danger');
+                    button.classList.add('btn-danger', 'text-white');
+                    if (icon) icon.className = 'fas fa-heart me-2';
+                } else {
+                    button.classList.remove('btn-danger', 'text-white');
+                    button.classList.add('btn-outline-danger');
+                    if (icon) icon.className = 'far fa-heart me-2';
+                }
+            }
+        })
+        .catch(err => console.error('Erro ao curtir o projeto:', err));
+    });
+
+    document.addEventListener('click', function(e) {
+        const button = e.target.closest('.favorite-btn');
+        if (!button) return;
+
+        const csrftoken = getCookie('csrftoken');
+        const icon = button.querySelector('i');
+        const textSpan = button.querySelector('.favorite-text');
+
+        if (!csrftoken) {
+            window.location.href = '/accounts/login/';
+            return;
+        }
+
+        const url = button.getAttribute('data-url');
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.status === 403 || response.status === 401) {
+                window.location.href = '/accounts/login/';
+                return;
+            }
+            if (!response.ok) throw new Error(`Erro na requisição. Status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.favorited !== undefined) {
+                if (data.favorited) {
+                    button.classList.remove('btn-outline-warning');
+                    button.classList.add('btn-warning', 'text-white');
+                    if (icon) icon.className = 'fas fa-star me-2';
+                    if (textSpan) textSpan.textContent = 'Favoritado';
+                } else {
+                    button.classList.remove('btn-warning', 'text-white');
+                    button.classList.add('btn-outline-warning');
+                    if (icon) icon.className = 'far fa-star me-2';
+                    if (textSpan) textSpan.textContent = 'Favoritar';
+                }
+            }
+        })
+        .catch(err => console.error('Erro ao favoritar o projeto:', err));
+    });
+
+    const shareBtn = document.getElementById('btn-share-detail');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', function() {
+            const projectUrl = this.getAttribute('data-url');
+            const sharetext = document.getElementById('share-text');
+            const icon = this.querySelector('i');
+            
+            if (!projectUrl) return;
+
+            navigator.clipboard.writeText(projectUrl).then(() => {
+                const originalText = sharetext ? sharetext.textContent : '';
+                const originalIconClass = icon ? icon.className : '';
+
+                if (sharetext) sharetext.textContent = 'Link copiado!';
+                if (icon) icon.className = 'fas fa-check me-2';
+                this.disabled = true;
+
+                setTimeout(() => {
+                    if (sharetext) sharetext.textContent = originalText;
+                    if (icon) icon.className = originalIconClass;
+                    this.disabled = false;
+                }, 2000);
+            }).catch(err => {
+                console.error('Erro ao copiar link: ', err);
+                alert('Não foi possível copiar o link automaticamente.');
+            });
+        });
+    }
+
+    const reportModal = document.getElementById('reportModal');
+    if (reportModal) {
+        reportModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const projectId = button.getAttribute('data-project-id');
+            const projectTitle = button.getAttribute('data-project-title');
+            
+            const modalProjectIdInput = reportModal.querySelector('#modalProjectId');
+            const modalProjectTitleDisplay = reportModal.querySelector('#modalProjectTitle');
+            const errorMessage = reportModal.querySelector('#modalErrorMessage');
+            
+            if (modalProjectIdInput) modalProjectIdInput.value = projectId;
+            if (modalProjectTitleDisplay) modalProjectTitleDisplay.textContent = projectTitle;
+            if (errorMessage) errorMessage.classList.add('d-none');
+        });
+
+        reportModal.addEventListener('hidden.bs.modal', function() {
+            const form = reportModal.querySelector('#reportForm');
+            if (form) form.reset();
         });
     }
 });
