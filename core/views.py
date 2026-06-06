@@ -10,7 +10,7 @@ def home(request):
                 .filter(is_private=False)
                 .exclude(owner__is_staff=True)
                 .exclude(owner__is_superuser=True)
-                .order_by('-created_at'))
+                .order_by('-created_at'))[:6]
     
     if request.user.is_authenticated:
         recommended_users = (
