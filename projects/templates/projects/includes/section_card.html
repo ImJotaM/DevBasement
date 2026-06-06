@@ -47,12 +47,68 @@
                 <div class="markdown-content" data-markdown="{{ section.content }}">
                     {{ section.content }}
                 </div>
+
+                {% if section.section_type == 'reference' %}
+                    <div class="row g-3 mt-0 project-reference-cards-zone">
+                        {% for link in section.reference_links.all %}
+                            <div class="col-12 mt-0">
+                                <div class="card shadow-sm border border-primary border-opacity-25" style="background-color: #f4f8fa;">
+                                    <div class="card-body p-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                                        <div class="text-truncate" style="flex-grow: 1;">
+                                            <h6 class="card-title fw-bold mb-1 text-primary text-truncate">{{ link.description }}</h6>
+                                            <p class="card-text text-muted small text-truncate mb-0">{{ link.url }}</p>
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            <a href="{{ link.url }}" target="_blank" class="btn btn-sm btn-primary rounded-pill px-4 d-flex align-items-center justify-content-center gap-2">
+                                                <i class="fas fa-external-link-alt" style="font-size: 0.75rem;"></i> Acessar Link
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
+
             <div id="section-edit-{{ section.id }}" class="inline-edit">
-                <textarea name="content" class="form-control mb-2" rows="10">{{ section.content }}</textarea>
-                <small class="text-muted d-block mb-2">Markdown suportado: títulos, listas, código, links, etc.</small>
-                <button type="submit" class="btn btn-sm btn-primary">Salvar</button>
-                <button type="button" class="btn btn-sm btn-secondary" onclick="toggleEdit({{ section.id }})">Cancelar</button>
+                <textarea name="content" class="form-control mb-2" rows="6">{{ section.content }}</textarea>
+                <small class="text-muted d-block mb-3"><b>Markdown suportado:</b> títulos, listas, código, links, etc.</small>
+                
+                {% if section.section_type == 'reference' %}
+                    <div class="border-top pt-3 mt-3">
+                        <h6 class="fw-bold mb-3 text-secondary d-flex align-items-center gap-2">
+                            <i class="fas fa-list-ol"></i> Gerenciar Cards de Links
+                        </h6>
+                        
+                        <div id="links-edit-container-{{ section.id }}" class="d-flex flex-column gap-2 mb-3">
+                            {% for link in section.reference_links.all %}
+                                <div class="row g-2 align-items-center link-input-row">
+                                    <div class="col-md-5">
+                                        <input type="text" name="link_description[]" class="form-control form-control-sm" placeholder="Breve descrição (Ex: Documentação Oficial)" value="{{ link.description }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="url" name="link_url[]" class="form-control form-control-sm" placeholder="https://exemplo.com" value="{{ link.url }}" required>
+                                    </div>
+                                    <div class="col-md-1 text-end">
+                                        <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="this.closest('.link-input-row').remove();">
+                                            <i class="fas fa-minus-circle"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="button" class="btn btn-xs btn-outline-success rounded-pill fw-bold mb-3" style="font-size: 0.8rem;" onclick="addLinkRowDynamic({{ section.id }})">
+                            <i class="fas fa-plus me-1"></i> Adicionar Referência
+                        </button>
+                    </div>
+                {% endif %}
+
+                <div class="mt-2">
+                    <button type="submit" class="btn btn-sm btn-primary px-3 rounded-pill">Salvar</button>
+                    <button type="button" class="btn btn-sm btn-secondary px-3 rounded-pill" onclick="toggleEdit({{ section.id }})">Cancelar</button>
+                </div>
             </div>
         </div>
     </form>

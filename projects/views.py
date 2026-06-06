@@ -2,7 +2,7 @@ import re
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-from .models import Project, ProjectLike, Comment, ProjectSection, SectionAnswer, Technology
+from .models import Project, ProjectLike, Comment, ProjectSection, SectionAnswer, SectionReferenceLink, Technology
 from .forms import ProjectForm
 from moderation.models import Report
 from accounts.models import User
@@ -82,7 +82,7 @@ def create_section(request, username, slug):
     if request.method == 'POST':
         project = get_object_or_404(Project, owner__username=username, slug=slug, owner=request.user)
         title = request.POST.get('title')
-        content = request.POST.get('content')
+        content = request.POST.get('content', '')
         section_type = request.POST.get('section_type', 'text')
         
         last_order = project.sections.filter(is_pinned=False).count()
@@ -94,6 +94,18 @@ def create_section(request, username, slug):
             section_type=section_type,
             order=last_order
         )
+        
+        if section_type == 'reference':
+            descriptions = request.POST.getlist('link_description[]')
+            urls = request.POST.getlist('link_url[]')
+            for i in range(len(descriptions)):
+                if descriptions[i].strip() and urls[i].strip():
+                    SectionReferenceLink.objects.create(
+                        section=section,
+                        description=descriptions[i].strip(),
+                        url=urls[i].strip()
+                    )
+                    
         return JsonResponse({'success': True, 'id': section.id})
 
     return JsonResponse({'success': False}, status=400)
@@ -103,19 +115,33 @@ def update_section(request, section_id):
     section = get_object_or_404(ProjectSection, id=section_id, project__owner=request.user)
     project = section.project
     
+    if request.user != section.project.owner:
+        return redirect('project_detail', username=section.project.owner.username, slug=section.project.slug)
+
     if request.method == 'POST':
         title = request.POST.get('title')
         content = request.POST.get('content')
         
         if title:
             section.title = title
-        if content:
+        if content is not None:
             section.content = content
         
         section.save()
+        
+        if section.section_type == 'reference':
+            section.links.all().delete()
+            descriptions = request.POST.getlist('link_description[]')
+            urls = request.POST.getlist('link_url[]')
+            for i in range(len(descriptions)):
+                if descriptions[i].strip() and urls[i].strip():
+                    SectionReferenceLink.objects.create(
+                        section=section,
+                        description=descriptions[i].strip(),
+                        url=urls[i].strip()
+                    )
     
     return redirect('project_detail', username=project.owner.username, slug=project.slug)
-
 
 @login_required
 def delete_section(request, section_id):
