@@ -77,7 +77,10 @@ def signup_view(request):
 
 def profile_view(request, username=None):
     if username:
-        profile_user = get_object_or_404(User, username=username)
+        try:
+            profile_user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return render(request, 'accounts/user_not_found.html', status=404)
     else:
         if not request.user.is_authenticated:
             return redirect('login')

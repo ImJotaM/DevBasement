@@ -5,12 +5,18 @@ from django.contrib.auth.decorators import login_required
 from .models import Project, ProjectLike, Comment, ProjectSection, SectionAnswer, Technology
 from .forms import ProjectForm
 from moderation.models import Report
+from accounts.models import User
 from django.http import JsonResponse
 from django.utils.text import slugify
 
 def project_detail_view(request, username, slug):
     try:
-        project = Project.objects.get(owner__username=username, slug=slug)
+        project_owner = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return render(request, 'accounts/user_not_found.html', status=404)
+
+    try:
+        project = Project.objects.get(owner=project_owner, slug=slug)
         
         if project.is_private and request.user != project.owner:
             return render(request, 'projects/project_not_found.html', {'reason': 'private'}, status=404)
