@@ -52,6 +52,12 @@
                     </li>
                 {% else %}
                     <li class="nav-item">
+                        <a href="{% url 'home' %}" class="btn btn-sm btn-light border rounded-2 px-2.5 py-1.5 text-dark nav-action-btn" title="Feed principal">
+                            <i class="fas fa-home text-secondary nav-action-icon"></i>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item">
                         <a href="{% url 'login' %}" class="btn btn-sm btn-link text-muted text-decoration-none fw-medium">Entrar</a>
                     </li>
                     <li class="nav-item">
