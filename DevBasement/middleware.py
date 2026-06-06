@@ -1,5 +1,3 @@
-from django.urls import reverse
-
 class NavigationHistoryMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -13,6 +11,9 @@ class NavigationHistoryMiddleware:
             
             current_path = request.get_full_path()
             
+            if '/api/' in current_path or 'search-suggestions' in current_path:
+                return response
+
             if 'nav_history' not in request.session:
                 request.session['nav_history'] = []
             
