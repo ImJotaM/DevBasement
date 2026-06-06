@@ -34,7 +34,8 @@ class SignupForm(forms.Form):
         RESERVED_USERNAMES = [
             'admin', 'login', 'signup', 'logout', 'profile', 
             'moderation', 'core', 'projects', 'accounts', 'api',
-            'dashboard', 'settings', 'help', 'search', 'follow'
+            'dashboard', 'settings', 'help', 'search', 'follow',
+            'go_back',
         ]
 
         if username in RESERVED_USERNAMES:

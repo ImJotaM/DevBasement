@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.db.models import Count, Q
 from projects.models import Project, ProjectLike, Technology
 from accounts.models import User
@@ -120,3 +120,15 @@ def search_results_view(request):
         'total_results': paginator.count
     }
     return render(request, 'core/search_results.html', context)
+
+def pop_back_view(request):
+    history = request.session.get('nav_history', [])
+    
+    if len(history) > 1:
+        history.pop()
+        previous_page = history.pop()
+        
+        request.session['nav_history'] = history
+        return redirect(previous_page)
+        
+    return redirect('home')
