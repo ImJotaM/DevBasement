@@ -52,8 +52,8 @@ Siga os passos abaixo para configurar e executar o projeto em um ambiente de tes
 1. Clone o repositório em uma pasta limpa:
 
 ```bash
-   git clone [https://github.com/ImJotaM/DevBasement.git](https://github.com/ImJotaM/DevBasement.git)
-   cd DevBasement
+git clone https://github.com/ImJotaM/DevBasement.git
+cd DevBasement
 ```
 
 2. Crie um ambiente virtual (venv):
@@ -139,9 +139,9 @@ A aplicação estará disponível em `http://localhost:8000/`.
 
 **Credenciais para teste rápido (Opção B):**
 
-* **Contas de usuários criadas:** adm, joao, clara, lucas, amanda, felipe, bruna, rafael, marina, pedro.
+* **Contas de usuários criadas:** joao, clara, lucas, amanda, felipe, bruna, rafael, marina, pedro.
 * **Senha padrão para todas as contas:** 1234
-* **Conta de administrador:** @adm (possui acesso total ao Painel de Moderação).
+* **Conta de administrador:** adm (possui acesso total ao Painel de Moderação, a senha se mantém 1234).
 
 ## Instruções de uso das principais funcionalidades
 
@@ -159,4 +159,4 @@ A barra de pesquisa na navbar realiza consultas em tempo real a partir do segund
 
 ### Moderação de Conteúdo
 
-Para testar o fluxo de administração, faça login com uma conta que possua permissões de administrador (como o usuário `@adm` fornecido no script de automação). O bloco chamado "Painel de Moderação" ficará visível na barra lateral direita da página inicial, permitindo auditar e gerenciar projetos que foram reportados.
+Para testar o fluxo de administração, faça login com uma conta que possua permissões de administrador (como o usuário `adm` fornecido no script de automação). O bloco chamado "Painel de Moderação" ficará visível na barra lateral direita da página inicial, permitindo auditar e gerenciar projetos que foram reportados.
