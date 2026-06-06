@@ -300,6 +300,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    const reportModal = document.getElementById('reportModal');
+    
+    if (reportModal) {
+        reportModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            
+            const projectId = button.getAttribute('data-project-id');
+            const projectTitle = button.getAttribute('data-project-title');
+            
+            const modalProjectIdInput = reportModal.querySelector('#modalProjectId');
+            const modalProjectTitleDisplay = reportModal.querySelector('#modalProjectTitle');
+            
+            if (modalProjectIdInput) modalProjectIdInput.value = projectId;
+            if (modalProjectTitleDisplay) modalProjectTitleDisplay.textContent = projectTitle;
+            
+            const errorMessage = reportModal.querySelector('#modalErrorMessage');
+            if (errorMessage) errorMessage.classList.add('d-none');
+        });
+
+        reportModal.addEventListener('hidden.bs.modal', function() {
+            const form = reportModal.querySelector('#reportForm');
+            if (form) form.reset();
+        });
+    }
+});
+
 function addNewSection() {
     newSectionCounter++;
     const tempId = `temp-${Date.now()}-${newSectionCounter}`;

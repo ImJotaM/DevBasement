@@ -254,3 +254,18 @@ body {
     box-shadow: none !important;
     opacity: 1 !important;
 }
+
+.btn-share-static, 
+.btn-report-static,
+.btn-share-static:hover, 
+.btn-report-static:hover,
+.btn-share-static:focus, 
+.btn-report-static:focus,
+.btn-share-static:active, 
+.btn-report-static:active {
+    background-color: transparent !important;
+    color: #212529 !important;
+    border-color: #212529 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
