@@ -1,7 +1,9 @@
 from django.shortcuts import render
-from django.db.models import Count
+from django.db.models import Count, Q
 from projects.models import Project, ProjectLike, Technology
 from accounts.models import User
+from django.http import JsonResponse
+from django.core.paginator import Paginator
 
 def home(request):
     projects = (Project.objects
@@ -60,3 +62,61 @@ def terms_view(request):
 
 def guidelines_view(request):
     return render(request, 'extras/guidelines.html')
+
+def search_suggestions_api(request):
+    query = request.GET.get('q', '').strip()
+    results = []
+    
+    if len(query) >= 2:
+        projects = Project.objects.filter(title__icontains=query, is_private=False)[:3]
+        for p in projects:
+            results.append({
+                'type': 'project',
+                'title': p.title,
+                'subtitle': f"Projeto por @{p.owner.username}",
+                'url': f"/{p.owner.username}/{p.slug}/"
+            })
+            
+        users = User.objects.filter(Q(username__icontains=query) | Q(first_name__icontains=query))[:3]
+        for u in users:
+            results.append({
+                'type': 'user',
+                'title': u.get_full_name() or u.username,
+                'subtitle': f"Usuário @{u.username}",
+                'url': f"/u/{u.username}/"
+            })
+            
+    return JsonResponse({'suggestions': results})
+
+def search_results_view(request):
+    query = request.GET.get('q', '').strip()
+    search_type = request.GET.get('type', 'projects')
+    
+    project_list = []
+    user_list = []
+    
+    if query:
+        if search_type == 'users':
+            user_list = User.objects.filter(
+                Q(username__icontains=query) | 
+                Q(first_name__icontains=query) | 
+                Q(last_name__icontains=query)
+            ).order_by('username')
+        else:
+            project_list = Project.objects.filter(
+                (Q(title__icontains=query) | Q(description__icontains=query)),
+                is_private=False
+            ).order_by('-created_at')
+
+    current_list = user_list if search_type == 'users' else project_list
+    paginator = Paginator(current_list, 6)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'query': query,
+        'search_type': search_type,
+        'page_obj': page_obj,
+        'total_results': paginator.count
+    }
+    return render(request, 'core/search_results.html', context)

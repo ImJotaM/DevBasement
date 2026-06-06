@@ -1,0 +1,103 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top py-2 mb-4 justify-content-between">
+    
+    <a class="navbar-brand fw-bold text-dark tracking-wide ms-4" href="{% url 'home' %}">
+        <i class="fas fa-boxes me-2 text-primary"></i>Dev<span class="text-primary">Basement</span>
+    </a>
+    
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse flex-grow-0" id="navbarContent">
+        <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-3 mt-2 mt-lg-0">
+            
+            <div class="search-trigger-wrapper">
+                <button type="button" 
+                        class="btn btn-sm btn-light border text-muted d-flex align-items-center justify-content-between w-100 rounded-2 py-1.5 px-2.5 search-trigger-btn"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#globalSearchModal">
+                    <div>
+                        <i class="fas fa-search me-2 text-muted search-trigger-icon"></i>
+                        <span>Buscar no DevBasement...</span>
+                    </div>
+                    <kbd class="bg-white text-muted border shadow-sm px-1.5 py-0 d-none d-md-inline-block search-trigger-kbd">/</kbd>
+                </button>
+            </div>
+
+            <ul class="navbar-nav align-items-center flex-row me-4 nav-actions-group">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a href="{% url 'create_project' %}" class="btn btn-sm btn-light border rounded-2 px-2.5 py-1.5 text-dark nav-action-btn" title="Criar novo projeto">
+                            <i class="fas fa-plus text-secondary nav-action-icon"></i>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{% url 'home' %}" class="btn btn-sm btn-light border rounded-2 px-2.5 py-1.5 text-dark nav-action-btn" title="Feed principal">
+                            <i class="fas fa-home text-secondary nav-action-icon"></i>
+                        </a>
+                    </li>
+
+                    <li class="nav-item ms-0">
+                        <a href="{% url 'profile' %}" class="d-inline-block text-decoration-none" title="Seu Perfil">
+                            {% if user.profile.image %}
+                                <img src="{{ user.profile.image.url }}" alt="@{{ user.username }}" class="rounded-circle border navbar-profile-img">
+                            {% else %}
+                                <div class="text-avatar-tiny shadow-sm">
+                                    {{ user.username|make_list|first|upper }}
+                                </div>
+                            {% endif %}
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a href="{% url 'login' %}" class="btn btn-sm btn-link text-muted text-decoration-none fw-medium">Entrar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'signup' %}" class="btn btn-sm btn-primary rounded-2 px-3 fw-bold">Cadastrar</a>
+                    </li>
+                {% endif %}
+            </ul>
+
+        </div>
+    </div>
+</nav>
+
+<div class="modal fade" id="globalSearchModal" tabindex="-1" aria-labelledby="globalSearchModalLabel" aria-hidden="true">
+    <div class="modal-dialog search-modal-dialog">
+        <div class="modal-content rounded-3 shadow-lg border-0 overflow-hidden">
+            
+            <div class="modal-header p-1.5 border-bottom bg-white">
+                <form action="{% url 'search_results' %}" method="GET" class="w-100" id="modalSearchForm">
+                    <div class="input-group border-0 align-items-center">
+                        <span class="input-group-text bg-transparent border-0 text-muted pe-2 ps-3">
+                            <i class="fas fa-search search-modal-icon"></i>
+                        </span>
+                        <input type="text" 
+                               name="q" 
+                               id="modalSearchInput" 
+                               class="form-control bg-transparent border-0 ps-1 shadow-none py-2 search-modal-input" 
+                               placeholder="Buscar projects ou desenvolvedores..." 
+                               autocomplete="off"
+                               value="{{ request.GET.q|default:'' }}">
+                        <button type="button" class="btn border-0 text-muted btn-sm px-3" data-bs-dismiss="modal" aria-label="Close">
+                            <i class="fas fa-times search-modal-close-icon"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="modalBodyWrapper" class="modal-body p-0 d-none search-modal-body-wrapper">
+                <div id="modalSuggestionsContainer" class="list-group list-group-flush">
+                </div>
+            </div>
+            
+            <div class="modal-footer justify-content-start py-1.5 px-3 bg-white border-top">
+                <small class="text-muted search-modal-footer-hint">
+                    <span class="badge bg-light text-dark border me-1">Enter</span> para pesquisar globalmente
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
