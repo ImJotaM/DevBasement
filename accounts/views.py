@@ -83,23 +83,38 @@ def profile_view(request, username=None):
             return redirect('login')
         profile_user = request.user
     
-    user_projects = Project.objects.filter(owner=profile_user).order_by('-created_at')
+    is_owner = request.user == profile_user
+
+    user_projects = Project.objects.filter(owner=profile_user)
+    if not is_owner:
+        user_projects = user_projects.filter(is_private=False)
+    user_projects = user_projects.order_by('-created_at')
+
     user_favorited_project_ids = set()
     if request.user.is_authenticated:
         user_favorited_project_ids = set(
             request.user.favorite_projects.values_list('id', flat=True)
         )
 
-    liked_entries = ProjectLike.objects.filter(user=profile_user).select_related('project', 'project__owner').order_by('-created_at')
+    liked_entries = ProjectLike.objects.filter(user=profile_user).select_related('project', 'project__owner')
+    if not is_owner:
+        liked_entries = liked_entries.filter(project__is_private=False)
+    liked_entries = liked_entries.order_by('-created_at')
     liked_projects = [entry.project for entry in liked_entries]
 
-    favorited_projects = profile_user.favorite_projects.all().order_by('-created_at')
+    favorited_projects = profile_user.favorite_projects.all()
+    if not is_owner:
+        favorited_projects = favorited_projects.filter(is_private=False)
+    favorited_projects = favorited_projects.order_by('-created_at')
 
     user_profile = profile_user.profile
     followers_count = user_profile.followers.count()
     following_count = user_profile.following.count()
     
-    total_likes = ProjectLike.objects.filter(project__owner=profile_user).count()
+    likes_query = ProjectLike.objects.filter(project__owner=profile_user)
+    if not is_owner:
+        likes_query = likes_query.filter(project__is_private=False)
+    total_likes = likes_query.count()
 
     user_liked_project_ids = set()
     if request.user.is_authenticated:
@@ -110,7 +125,7 @@ def profile_view(request, username=None):
     context = {
         'profile_user': profile_user,
         'projects': user_projects,
-        'projects_count': user_projects.count(),
+        'projects_count': user_projects.count(), # Contador dinâmico ajustado pela privacidade
         'liked_projects': liked_projects,
         'favorited_projects': favorited_projects,
         'user_favorited_project_ids': user_favorited_project_ids,
@@ -118,6 +133,7 @@ def profile_view(request, username=None):
         'following_count': following_count,
         'total_likes': total_likes,
         'user_liked_project_ids': user_liked_project_ids,
+        'is_owner': is_owner, # Enviado ao contexto caso queira esconder abas inteiras no HTML
     }
 
     return render(request, 'accounts/profile.html', context)
