@@ -25,19 +25,41 @@
                 <span class="badge bg-secondary rounded-pill">Planejamento</span>
             {% endif %}
 
-            {% if user.is_authenticated %}
-                <button type="button" 
-                        class="btn btn-link text-dark p-0 border-0 btn-report" 
-                        data-project-id="{{ project.id }}" 
-                        data-project-username="{{ project.owner.username }}"
-                        data-project-slug="{{ project.slug }}"
-                        data-project-title="{{ project.title }}"
-                        style="font-size: 0.8rem; text-decoration: none;">
-                    <i class="bi bi-flag"></i>
+            <div class="dropdown">
+                <button class="btn btn-link text-muted p-1 border-0 dropdown-toggle no-arrow" 
+                        type="button" 
+                        id="dropdownMenuProject{{ project.id }}" 
+                        data-bs-toggle="dropdown" 
+                        aria-expanded="false"
+                        style="font-size: 1.15rem; line-height: 1;">
+                    <i class="bi bi-three-dots-vertical"></i>
                 </button>
-            {% else %}
-                <a href="{% url 'login' %}" class="text-muted" style="font-size: 1.15rem;"><i class="bi bi-flag"></i></a>
-            {% endif %}
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm dropdown-menu-custom" aria-labelledby="dropdownMenuProject{{ project.id }}">
+                    <li>
+                        <button class="dropdown-item btn-share-project" type="button"
+                                data-project-url="{{ request.scheme }}://{{ request.get_host }}{% url 'project_detail' project.owner.username project.slug %}">
+                            <i class="bi bi-share me-2"></i> Compartilhar link
+                        </button>
+                    </li>
+                    
+                    <li>
+                        {% if user.is_authenticated %}
+                            <button type="button" 
+                                    class="dropdown-item btn-report text-danger" 
+                                    data-project-id="{{ project.id }}" 
+                                    data-project-username="{{ project.owner.username }}"
+                                    data-project-slug="{{ project.slug }}"
+                                    data-project-title="{{ project.title }}">
+                                <i class="bi bi-flag me-2"></i> Reportar projeto
+                            </button>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="dropdown-item text-danger">
+                                <i class="bi bi-flag me-2"></i> Reportar projeto
+                            </a>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
     

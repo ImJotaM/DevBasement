@@ -242,3 +242,15 @@ body {
     align-items: center;
     gap: 6px;
 }
+
+.btn-share-static,
+.btn-share-static:hover,
+.btn-share-static:focus,
+.btn-share-static:active,
+.btn-share-static:disabled {
+    background-color: transparent !important;
+    color: #212529 !important;
+    border-color: #212529 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}

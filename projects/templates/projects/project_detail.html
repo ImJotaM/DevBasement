@@ -204,6 +204,13 @@
                         </a>
                     {% endif %}
 
+                    <button type="button" 
+                            id="btn-share-detail" 
+                            class="btn btn-outline-dark rounded-pill btn-share-static" 
+                            data-url="{{ request.scheme }}://{{ request.get_host }}{% url 'project_detail' project.owner.username project.slug %}">
+                        <i class="fas fa-share-alt me-2"></i> <span id="share-text">Compartilhar</span>
+                    </button>
+
                     {% if project.repo_url %}
                         <a href="{{ project.repo_url }}" target="_blank" class="btn btn-dark rounded-pill">
                             <i class="fab fa-github me-2"></i> Ver no GitHub

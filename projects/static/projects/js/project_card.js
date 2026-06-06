@@ -117,6 +117,29 @@ document.querySelectorAll('.project-card .favorite-btn').forEach(button => {
     });
 });
 
+document.querySelectorAll('.project-card .btn-share-project').forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const projectUrl = this.getAttribute('data-project-url');
+
+        if (!projectUrl) return;
+
+        navigator.clipboard.writeText(projectUrl).then(() => {
+            const originalHTML = this.innerHTML;
+            this.innerHTML = `<i class="bi bi-check-lg text-success me-2"></i> Link copiado!`;
+            this.disabled = true;
+
+            setTimeout(() => {
+                this.innerHTML = originalHTML;
+                this.disabled = false;
+            }, 2000);
+        }).catch(err => {
+            console.error('Falha ao copiar o link: ', err);
+            alert('Não foi possível copiar o link automaticamente.');
+        });
+    });
+});
+
 document.addEventListener("DOMContentLoaded", function () {
     const reportModalEl = document.getElementById('reportModal');
     if (!reportModalEl) return;

@@ -82,3 +82,18 @@
 .project-card .btn-report:hover {
     color: #dc3545 !important;
 }
+
+.dropdown-toggle.no-arrow::after {
+    display: none !important;
+}
+
+.dropdown-menu-custom {
+    border-radius: 10px;
+    padding: 0.5rem 0;
+}
+
+.dropdown-menu-custom .dropdown-item {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}

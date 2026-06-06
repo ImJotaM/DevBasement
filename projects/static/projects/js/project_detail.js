@@ -268,6 +268,38 @@ document.querySelectorAll('.favorite-btn').forEach(button => {
     });
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    const shareBtn = document.getElementById('btn-share-detail');
+    
+    if (shareBtn) {
+        shareBtn.addEventListener('click', function() {
+            const projectUrl = this.getAttribute('data-url');
+            const sharetext = document.getElementById('share-text');
+            const icon = this.querySelector('i');
+            
+            if (!projectUrl) return;
+
+            navigator.clipboard.writeText(projectUrl).then(() => {
+                const originalText = sharetext.textContent;
+                const originalIconClass = icon.className;
+
+                sharetext.textContent = 'Link copiado!';
+                icon.className = 'fas fa-check me-2';
+                this.disabled = true;
+
+                setTimeout(() => {
+                    sharetext.textContent = originalText;
+                    icon.className = originalIconClass;
+                    this.disabled = false;
+                }, 2000);
+            }).catch(err => {
+                console.error('Erro ao copiar link: ', err);
+                alert('Não foi possível copiar o link automaticamente.');
+            });
+        });
+    }
+});
+
 function addNewSection() {
     newSectionCounter++;
     const tempId = `temp-${Date.now()}-${newSectionCounter}`;
