@@ -125,7 +125,7 @@ def profile_view(request, username=None):
     context = {
         'profile_user': profile_user,
         'projects': user_projects,
-        'projects_count': user_projects.count(), # Contador dinâmico ajustado pela privacidade
+        'projects_count': user_projects.count(),
         'liked_projects': liked_projects,
         'favorited_projects': favorited_projects,
         'user_favorited_project_ids': user_favorited_project_ids,
@@ -133,7 +133,7 @@ def profile_view(request, username=None):
         'following_count': following_count,
         'total_likes': total_likes,
         'user_liked_project_ids': user_liked_project_ids,
-        'is_owner': is_owner, # Enviado ao contexto caso queira esconder abas inteiras no HTML
+        'is_owner': is_owner,
     }
 
     return render(request, 'accounts/profile.html', context)

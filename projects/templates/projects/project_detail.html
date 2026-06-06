@@ -302,6 +302,24 @@
                         </select>
                         <button type="submit" class="btn btn-sm btn-primary mt-2">Salvar Status</button>
                     </form>
+                    {% else %}
+                        {% if project.status == 'planning' %}
+                            <span class="badge bg-secondary text-white px-3 py-2 rounded-pill fw-medium">
+                                <i class="fas fa-compass me-1"></i> Planejamento
+                            </span>
+                        {% elif project.status == 'in_progress' %}
+                            <span class="badge bg-primary text-white px-3 py-2 rounded-pill fw-medium">
+                                <i class="fas fa-spinner fa-spin me-1"></i> Em Desenvolvimento
+                            </span>
+                        {% elif project.status == 'completed' %}
+                            <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-medium">
+                                <i class="fas fa-check-circle me-1"></i> Concluído
+                            </span>
+                        {% else %}
+                            <span class="badge bg-dark text-white px-3 py-2 rounded-pill fw-medium">
+                                Não Especificado
+                            </span>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>
