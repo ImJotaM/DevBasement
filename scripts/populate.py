@@ -16,6 +16,7 @@ from projects.models import (
     Technology,
     Project,
     ProjectSection,
+    SectionReferenceLink,
     SectionAnswer,
     Comment,
     ProjectLike,
@@ -30,6 +31,7 @@ def clean_database():
     Report.objects.all().delete()
     Comment.objects.all().delete()
     SectionAnswer.objects.all().delete()
+    SectionReferenceLink.objects.all().delete()
     ProjectSection.objects.all().delete()
     ProjectLike.objects.all().delete()
     Project.objects.all().delete()
@@ -184,7 +186,7 @@ def seed():
 
             all_projects.append(project)
 
-    print("Criando seções...")
+    print("Criando seções e referências...")
 
     for project in all_projects:
 
@@ -210,14 +212,28 @@ def seed():
             order=1,
         )
 
-        ProjectSection.objects.create(
+        reference_section = ProjectSection.objects.create(
             project=project,
-            title="Repositório",
-            content=f"https://github.com/{project.owner.username}",
+            title="Documentação e Links Úteis",
+            content="Abaixo compilei os principais materiais, repositórios e links de artigos que serviram de fundação teórica para mim durante o escopo deste desenvolvimento.",
             section_type="reference",
             is_pinned=random.random() < 0.3,
             order=2,
         )
+
+        links_templates = [
+            ("Repositório Principal no GitHub", f"https://github.com/{project.owner.username}"),
+            ("Documentação Oficial do Framework", "https://docs.djangoproject.com/"),
+            ("Referência de Deploy e Infra", "https://www.docker.com/"),
+            ("Design System e UI Kit Utilitário", "https://tailwindcss.com/")
+        ]
+        
+        for description, url in random.sample(links_templates, random.randint(1, 3)):
+            SectionReferenceLink.objects.create(
+                section=reference_section,
+                description=description,
+                url=url
+            )
 
         responders = [
             u for u in users
@@ -240,10 +256,11 @@ def seed():
                     "Considere filas assíncronas.",
                     "Docker pode facilitar a implantação.",
                     "Separar serviços pode ajudar.",
+                    "Excelente abordagem estrutural.",
                 ]),
             )
 
-    print("Criando interações...")
+    print("Criando interações e favoritos...")
 
     public_projects = [
         p for p in all_projects
@@ -260,27 +277,23 @@ def seed():
 
         for user in random.sample(
             possible_users,
-            random.randint(
-                0,
-                len(possible_users)
-            ),
+            random.randint(0, len(possible_users)),
         ):
-
             ProjectLike.objects.get_or_create(
                 user=user,
                 project=project,
             )
 
-            user.profile.favorites.add(project)
+        for user in random.sample(
+            possible_users,
+            random.randint(0, len(possible_users)),
+        ):
+            project.favorites.add(user)
 
         for user in random.sample(
             possible_users,
-            random.randint(
-                0,
-                len(possible_users)
-            ),
+            random.randint(0, len(possible_users)),
         ):
-
             Comment.objects.create(
                 project=project,
                 user=user,
@@ -290,6 +303,7 @@ def seed():
                     "Parabéns pelo trabalho.",
                     "Vou testar depois.",
                     "Excelente documentação.",
+                    "Ideia genial!",
                 ]),
             )
 
